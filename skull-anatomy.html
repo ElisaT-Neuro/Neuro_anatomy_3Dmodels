@@ -7,8 +7,10 @@
     <style>
         body { font-family: Arial, sans-serif; text-align: center; margin: 0; background-color: #f0f0f0; }
         #header { padding: 20px; background: white; box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
-        #api-frame { width: 80%; height: 400px; border: none; margin-top: 20px; }
-        #quiz-container { margin-top: 20px; background: rgba(255, 255, 255, 0.8); padding: 15px; border-radius: 5px; display: inline-block; }
+        #api-frame { width: 80%; height: 500px; border: none; margin-top: 20px; }
+        #quiz-container { margin-top: 20px; background: rgba(255, 255, 255, 0.9); padding: 15px; border-radius: 5px; display: inline-block; }
+        #next-button { background-color: #007bff; color: white; padding: 10px; border: none; cursor: pointer; border-radius: 5px; margin-top: 10px; }
+        #next-button:hover { background-color: #0056b3; }
     </style>
 </head>
 <body>
@@ -18,17 +20,74 @@
         <a href="index.html">Back to Quiz Selection</a>
     </div>
 
-    <!-- Embed Sketchfab Model (Reduced Size) -->
-    <iframe id="api-frame" src="https://sketchfab.com/models/fd3ccceafd5947acaacb468be88d1a9c/embed" 
+    <!-- Sketchfab Model -->
+    <iframe id="api-frame" src="https://sketchfab.com/models/fd3ccceafd5947acaacb468be88d1a9c/embed?annotation=1"
         allow="autoplay; fullscreen; xr-spatial-tracking; gyroscope; accelerometer" allowfullscreen>
     </iframe>
 
     <!-- Quiz Content -->
     <div id="quiz-container">
-        <p>Question: Which bone forms the forehead?</p>
-        <button onclick="alert('Correct!')">Frontal Bone</button>
-        <button onclick="alert('Try Again!')">Temporal Bone</button>
+        <p id="question">Question 1: Which bone forms the forehead?</p>
+        <div id="options">
+            <button onclick="answer('correct')">Frontal Bone</button>
+            <button onclick="answer('wrong')">Temporal Bone</button>
+        </div>
+        <button id="next-button" onclick="nextQuestion()">Next Question</button>
     </div>
+
+    <script>
+        let questionIndex = 1;
+        let sketchfabAPI;
+
+        // Function to handle correct/wrong answers
+        function answer(result) {
+            if (result === "correct") {
+                alert("Correct!");
+            } else {
+                alert("Try Again!");
+            }
+        }
+
+        // Function to load the next question
+        function nextQuestion() {
+            if (questionIndex === 1) {
+                document.getElementById("question").innerText = "Question 2: Click on the annotation corresponding to the Optic Canal.";
+                document.getElementById("options").innerHTML = `<p>Use the Sketchfab model and click Annotation #3.</p>`;
+
+                // Update Sketchfab model to focus on Annotation #3
+                document.getElementById("api-frame").src = "https://sketchfab.com/models/fd3ccceafd5947acaacb468be88d1a9c/embed?annotation=3";
+
+                // Initialize Sketchfab API listener
+                initSketchfabAPI();
+
+                questionIndex++;
+            } else {
+                alert("Quiz Complete! Thanks for participating.");
+            }
+        }
+
+        // Function to detect annotation click and provide feedback
+        function initSketchfabAPI() {
+            var iframe = document.getElementById('api-frame');
+            var client = new Sketchfab(iframe);
+
+            client.init({
+                success: function(api) {
+                    sketchfabAPI = api;
+                    sketchfabAPI.addEventListener('annotationFocus', function(index) {
+                        if (index === 3) {
+                            alert("Correct! The Optic Canal is Annotation #3.");
+                        } else {
+                            alert("Try Again! That is not the Optic Canal.");
+                        }
+                    });
+                },
+                error: function() {
+                    console.log("Sketchfab API failed to load.");
+                }
+            });
+        }
+    </script>
 
 </body>
 </html>
