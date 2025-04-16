@@ -21,7 +21,7 @@
     </div>
 
     <!-- Sketchfab Model -->
-    <iframe id="api-frame" src="https://sketchfab.com/models/fd3ccceafd5947acaacb468be88d1a9c/embed"
+    <iframe id="api-frame" src="https://sketchfab.com/models/fd3ccceafd5947acaacb468be88d1a9c/embed?autostart=1"
         allow="autoplay; fullscreen; xr-spatial-tracking; gyroscope; accelerometer" allowfullscreen>
     </iframe>
 
@@ -58,21 +58,17 @@
                         document.getElementById("options").appendChild(button);
                     });
                 } else if (questionData.type === "annotation") {
-                    document.getElementById("options").innerHTML = `<p>Click on Annotation #${questionData.annotationId} in the Sketchfab model.</p>`;
-                    
-                    // Make sure Sketchfab API is loaded before navigating
+                    document.getElementById("options").innerHTML = `<p>Click on Annotation #${questionData.annotationId}.</p>`;
+
+                    // Ensure the API is connected before navigating
                     if (sketchfabAPI) {
                         console.log("Navigating to Annotation #" + questionData.annotationId);
                         sketchfabAPI.gotoAnnotation(questionData.annotationId);
                     } else {
-                        console.log("Sketchfab API not loaded yet, retrying...");
-                        setTimeout(() => {
-                            if (sketchfabAPI) {
-                                sketchfabAPI.gotoAnnotation(questionData.annotationId);
-                            } else {
-                                alert("Error: Sketchfab API failed to load.");
-                            }
-                        }, 2000);
+                        console.log("API disconnected—reconnecting...");
+                        initSketchfabAPI(() => {
+                            sketchfabAPI.gotoAnnotation(questionData.annotationId);
+                        });
                     }
                 }
 
@@ -82,7 +78,7 @@
             }
         }
 
-        function initSketchfabAPI() {
+        function initSketchfabAPI(callback) {
             var iframe = document.getElementById('api-frame');
             var client = new Sketchfab(iframe);
 
@@ -99,6 +95,10 @@
                             alert("Try Again! That is not the correct annotation.");
                         }
                     });
+
+                    if (callback) {
+                        callback();
+                    }
                 },
                 error: function() {
                     console.log("Sketchfab API failed to load.");
@@ -108,8 +108,7 @@
         }
 
         window.onload = () => {
-            initSketchfabAPI();
-            nextQuestion();
+            initSketchfabAPI(() => nextQuestion());
         };
     </script>
 
