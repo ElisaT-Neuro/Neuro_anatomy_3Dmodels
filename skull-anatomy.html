@@ -7,7 +7,7 @@
     <style>
         body { font-family: Arial, sans-serif; text-align: center; margin: 0; background-color: #f0f0f0; }
         #header { padding: 20px; background: white; box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
-        #api-frame { width: 80%; height: 500px; border: none; margin-top: 20px; }
+        #viewer-container { width: 80%; height: 500px; margin: auto; }
         #quiz-container, #start-quiz-container { display: none; margin-top: 20px; background: rgba(255, 255, 255, 0.9); padding: 15px; border-radius: 5px; }
         #start-button, #next-button { background-color: #007bff; color: white; padding: 10px; border: none; cursor: pointer; border-radius: 5px; margin-top: 10px; }
         #start-button:hover, #next-button:hover { background-color: #0056b3; }
@@ -20,11 +20,8 @@
         <a href="index.html">Back to Quiz Selection</a>
     </div>
 
-    <!-- Sketchfab Model -->
-   <iframe id="api-frame" src="https://sketchfab.com/models/fd3ccceafd5947acaacb468be88d1a9c/embed"
-    allow="autoplay; fullscreen; xr-spatial-tracking; gyroscope; accelerometer" allowfullscreen>
-</iframe>
-
+    <!-- Sketchfab Viewer API Container -->
+    <div id="viewer-container"></div>
 
     <!-- Prompt to Start Quiz -->
     <div id="start-quiz-container">
@@ -43,6 +40,7 @@
         let sketchfabAPI;
         let currentQuestionIndex = 0;
         let sketchfabReady = false;
+        const modelID = "fd3ccceafd5947acaacb468be88d1a9c"; // Replace with your Sketchfab model ID
 
         const questions = [
             { type: "multipleChoice", text: "Which bone forms the forehead?", options: [
@@ -51,17 +49,6 @@
             ]},
             { type: "annotation", text: "Click on the annotation corresponding to the Optic Canal.", annotationId: 3 }
         ];
-
-        // Function to show "Start Quiz?" prompt after 5 seconds
-        setTimeout(() => {
-            document.getElementById("start-quiz-container").style.display = "block";
-        }, 5000);
-
-        function startQuiz() {
-            document.getElementById("start-quiz-container").style.display = "none";
-            document.getElementById("quiz-container").style.display = "block";
-            nextQuestion();
-        }
 
         function nextQuestion() {
             if (currentQuestionIndex < questions.length) {
@@ -81,14 +68,6 @@
 
                     if (sketchfabReady) {
                         sketchfabAPI.gotoAnnotation(questionData.annotationId);
-                    } else {
-                        setTimeout(() => {
-                            if (sketchfabReady) {
-                                sketchfabAPI.gotoAnnotation(questionData.annotationId);
-                            } else {
-                                alert("Error: Sketchfab API failed to load.");
-                            }
-                        }, 2000);
                     }
                 }
 
@@ -98,8 +77,22 @@
             }
         }
 
+        function startQuiz() {
+            document.getElementById("start-quiz-container").style.display = "none";
+            document.getElementById("quiz-container").style.display = "block";
+            nextQuestion();
+        }
+
         function initSketchfabAPI() {
-            var iframe = document.getElementById('api-frame');
+            var iframe = document.createElement("iframe");
+            iframe.setAttribute("src", `https://sketchfab.com/models/${modelID}/embed`);
+            iframe.setAttribute("allow", "autoplay; fullscreen; xr-spatial-tracking; gyroscope; accelerometer");
+            iframe.style.width = "100%";
+            iframe.style.height = "500px";
+            iframe.style.border = "none";
+
+            document.getElementById("viewer-container").appendChild(iframe);
+
             var client = new Sketchfab(iframe);
 
             client.init({
@@ -116,8 +109,6 @@
                             alert("Try Again! That is not the correct annotation.");
                         }
                     });
-
-                    keepSketchfabSessionActive();
                 },
                 error: function() {
                     console.log("Sketchfab API failed to load.");
@@ -125,17 +116,11 @@
             });
         }
 
-        // Function to keep Sketchfab session active
-        function keepSketchfabSessionActive() {
-            setInterval(() => {
-                if (sketchfabAPI) {
-                    sketchfabAPI.getAnnotationList(() => console.log("Sketchfab session refreshed."));
-                }
-            }, 5000); // Refresh every 5 seconds
-        }
-
         window.onload = () => {
             initSketchfabAPI();
+            setTimeout(() => {
+                document.getElementById("start-quiz-container").style.display = "block";
+            }, 5000);
         };
     </script>
 
