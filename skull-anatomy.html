@@ -21,52 +21,78 @@
     </div>
 
     <!-- Sketchfab Model -->
-    <iframe id="api-frame" src="https://sketchfab.com/models/fd3ccceafd5947acaacb468be88d1a9c/embed?annotation=1"
+    <iframe id="api-frame" src="https://sketchfab.com/models/fd3ccceafd5947acaacb468be88d1a9c/embed"
         allow="autoplay; fullscreen; xr-spatial-tracking; gyroscope; accelerometer" allowfullscreen>
     </iframe>
 
     <!-- Quiz Content -->
     <div id="quiz-container">
-        <p id="question">Question 1: Which bone forms the forehead?</p>
-        <div id="options">
-            <button onclick="answer('correct')">Frontal Bone</button>
-            <button onclick="answer('wrong')">Temporal Bone</button>
-        </div>
+        <p id="question"></p>
+        <div id="options"></div>
         <button id="next-button" onclick="nextQuestion()">Next Question</button>
     </div>
 
     <script>
-        let questionIndex = 1;
         let sketchfabAPI;
+        let currentQuestionIndex = 0;
 
-        // Function to handle correct/wrong answers
-        function answer(result) {
-            if (result === "correct") {
-                alert("Correct!");
-            } else {
-                alert("Try Again!");
-            }
-        }
+        // List of quiz questions (supports annotation-based + multiple choice questions)
+        const questions = [
+            {
+                type: "multipleChoice",
+                text: "Which bone forms the forehead?",
+                options: [
+                    { answer: "Frontal Bone", correct: true },
+                    { answer: "Temporal Bone", correct: false }
+                ]
+            },
+            {
+                type: "annotation",
+                text: "Click on the annotation corresponding to the Optic Canal.",
+                annotationId: 3
+            },
+            {
+                type: "multipleChoice",
+                text: "Which part of the skull protects the brain?",
+                options: [
+                    { answer: "Cranial Vault", correct: true },
+                    { answer: "Mandible", correct: false }
+                ]
+            },
+            {
+                type: "annotation",
+                text: "Click on the annotation for the Foramen Magnum.",
+                annotationId: 4
+            },
+            // Add more questions here up to 10+
+        ];
 
         // Function to load the next question
         function nextQuestion() {
-            if (questionIndex === 1) {
-                document.getElementById("question").innerText = "Question 2: Click on the annotation corresponding to the Optic Canal.";
-                document.getElementById("options").innerHTML = `<p>Use the Sketchfab model and click Annotation #3.</p>`;
+            if (currentQuestionIndex < questions.length) {
+                const questionData = questions[currentQuestionIndex];
+                document.getElementById("question").innerText = questionData.text;
+                document.getElementById("options").innerHTML = "";
 
-                // Update Sketchfab model to focus on Annotation #3
-                document.getElementById("api-frame").src = "https://sketchfab.com/models/fd3ccceafd5947acaacb468be88d1a9c/embed?annotation=3";
+                if (questionData.type === "multipleChoice") {
+                    questionData.options.forEach(option => {
+                        let button = document.createElement("button");
+                        button.innerText = option.answer;
+                        button.onclick = () => alert(option.correct ? "Correct!" : "Try Again!");
+                        document.getElementById("options").appendChild(button);
+                    });
+                } else if (questionData.type === "annotation") {
+                    document.getElementById("options").innerHTML = `<p>Use the Sketchfab model and click annotation #${questionData.annotationId}.</p>`;
+                    sketchfabAPI.gotoAnnotation(questionData.annotationId);
+                }
 
-                // Initialize Sketchfab API listener
-                initSketchfabAPI();
-
-                questionIndex++;
+                currentQuestionIndex++;
             } else {
                 alert("Quiz Complete! Thanks for participating.");
             }
         }
 
-        // Function to detect annotation click and provide feedback
+        // Initialize Sketchfab API
         function initSketchfabAPI() {
             var iframe = document.getElementById('api-frame');
             var client = new Sketchfab(iframe);
@@ -75,10 +101,11 @@
                 success: function(api) {
                     sketchfabAPI = api;
                     sketchfabAPI.addEventListener('annotationFocus', function(index) {
-                        if (index === 3) {
-                            alert("Correct! The Optic Canal is Annotation #3.");
-                        } else {
-                            alert("Try Again! That is not the Optic Canal.");
+                        const currentQuestion = questions[currentQuestionIndex - 1];
+                        if (currentQuestion.type === "annotation" && index === currentQuestion.annotationId) {
+                            alert("Correct! You found the right annotation.");
+                        } else if (currentQuestion.type === "annotation") {
+                            alert("Try Again! That is not the correct annotation.");
                         }
                     });
                 },
@@ -87,6 +114,12 @@
                 }
             });
         }
+
+        // Load Sketchfab API when page is ready
+        window.onload = () => {
+            initSketchfabAPI();
+            nextQuestion(); // Load first question automatically
+        };
     </script>
 
 </body>
