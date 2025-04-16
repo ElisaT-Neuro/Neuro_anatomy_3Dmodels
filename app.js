@@ -98,9 +98,10 @@ function checkAnswer(selectedAnnotation) {
     if (questionData.type === "annotation" && selectedAnnotation === questionData.annotationId) {
         alert("Correct!");
         score++;
-        currentQuestionIndex++;
+        currentQuestionIndex++; // Move forward after correct selection
         setTimeout(nextQuestion, 1000);
     } else {
         alert("Incorrect, try again.");
     }
 }
+
