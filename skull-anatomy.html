@@ -5,16 +5,14 @@
     <title>Skull Anatomy Explorer</title>
     <script src="app.js"></script> <!-- Load quiz logic -->
     <style>
-        body { font-family: Arial, sans-serif; text-align: center; margin: 0; background-color: #f0f0f0; }
-        #header { padding: 20px; background: white; box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
-        #api-frame { width: 80%; height: 500px; border: none; margin-top: 20px; }
-        #quiz-container, #start-quiz-button { display: none; margin-top: 20px; }
-        #start-quiz-button, #next-button { background-color: #007bff; color: white; padding: 10px; border: none; cursor: pointer; border-radius: 5px; }
-        #start-quiz-button:hover, #next-button:hover { background-color: #0056b3; }
-    #start-quiz-button {
-    display: block !important;
-}
+body { font-family: Arial, sans-serif; text-align: center; margin: 0; background-color: #f0f0f0; }
+#header { padding: 20px; background: white; box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
+#api-frame { width: 80%; height: 500px; border: none; margin-top: 20px; }
+#quiz-container { display: none; margin-top: 20px; } /* Keep quiz hidden initially */
+#start-quiz-button { background-color: #007bff; color: white; padding: 10px; border: none; cursor: pointer; border-radius: 5px; display: block !important; } /* Ensure start button is visible */
+#start-quiz-button:hover, #next-button:hover { background-color: #0056b3; }
 
+        
     </style>
 </head>
 <body>
