@@ -17,7 +17,7 @@
 
     <div id="header">
         <h1>Explore the Skull Anatomy</h1>
-        <a href="index.html">Back to Model Selection</a>
+        <a href="index.html">Back to Quiz Selection</a>
     </div>
 
     <!-- Sketchfab Model -->
@@ -41,6 +41,7 @@
     <script>
         let sketchfabAPI;
         let currentQuestionIndex = 0;
+        let sketchfabReady = false;
 
         const questions = [
             { type: "multipleChoice", text: "Which bone forms the forehead?", options: [
@@ -55,7 +56,6 @@
             document.getElementById("start-quiz-container").style.display = "block";
         }, 5000);
 
-        // Function to start the quiz
         function startQuiz() {
             document.getElementById("start-quiz-container").style.display = "none";
             document.getElementById("quiz-container").style.display = "block";
@@ -78,9 +78,16 @@
                 } else if (questionData.type === "annotation") {
                     document.getElementById("options").innerHTML = `<p>Click on Annotation #${questionData.annotationId}.</p>`;
 
-                    // Ensure Sketchfab API is connected before navigating
-                    if (sketchfabAPI) {
+                    if (sketchfabReady) {
                         sketchfabAPI.gotoAnnotation(questionData.annotationId);
+                    } else {
+                        setTimeout(() => {
+                            if (sketchfabReady) {
+                                sketchfabAPI.gotoAnnotation(questionData.annotationId);
+                            } else {
+                                alert("Error: Sketchfab API failed to load.");
+                            }
+                        }, 2000);
                     }
                 }
 
@@ -97,6 +104,7 @@
             client.init({
                 success: function(api) {
                     sketchfabAPI = api;
+                    sketchfabReady = true;
                     console.log("Sketchfab API Loaded Successfully!");
 
                     sketchfabAPI.addEventListener('annotationFocus', function(index) {
@@ -107,11 +115,22 @@
                             alert("Try Again! That is not the correct annotation.");
                         }
                     });
+
+                    keepSketchfabSessionActive();
                 },
                 error: function() {
                     console.log("Sketchfab API failed to load.");
                 }
             });
+        }
+
+        // Function to keep Sketchfab session active
+        function keepSketchfabSessionActive() {
+            setInterval(() => {
+                if (sketchfabAPI) {
+                    sketchfabAPI.getAnnotationList(() => console.log("Sketchfab session refreshed."));
+                }
+            }, 5000); // Refresh every 5 seconds
         }
 
         window.onload = () => {
