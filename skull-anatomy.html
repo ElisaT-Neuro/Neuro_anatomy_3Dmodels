@@ -2,21 +2,21 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Skull Anatomy Quiz</title>
+    <title>Skull Anatomy Explorer</title>
     <script type="text/javascript" src="https://static.sketchfab.com/api/sketchfab-viewer-1.12.1.js"></script>
     <style>
         body { font-family: Arial, sans-serif; text-align: center; margin: 0; background-color: #f0f0f0; }
         #header { padding: 20px; background: white; box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
         #api-frame { width: 80%; height: 500px; border: none; margin-top: 20px; }
-        #quiz-container { margin-top: 20px; background: rgba(255, 255, 255, 0.9); padding: 15px; border-radius: 5px; display: inline-block; }
-        #next-button { background-color: #007bff; color: white; padding: 10px; border: none; cursor: pointer; border-radius: 5px; margin-top: 10px; }
-        #next-button:hover { background-color: #0056b3; }
+        #quiz-container, #start-quiz-container { display: none; margin-top: 20px; background: rgba(255, 255, 255, 0.9); padding: 15px; border-radius: 5px; }
+        #start-button, #next-button { background-color: #007bff; color: white; padding: 10px; border: none; cursor: pointer; border-radius: 5px; margin-top: 10px; }
+        #start-button:hover, #next-button:hover { background-color: #0056b3; }
     </style>
 </head>
 <body>
 
     <div id="header">
-        <h1>Skull Anatomy Quiz</h1>
+        <h1>Explore the Skull Anatomy</h1>
         <a href="index.html">Back to Quiz Selection</a>
     </div>
 
@@ -25,9 +25,15 @@
         allow="autoplay; fullscreen; xr-spatial-tracking; gyroscope; accelerometer" allowfullscreen>
     </iframe>
 
+    <!-- Prompt to Start Quiz -->
+    <div id="start-quiz-container">
+        <p>Would you like to take the Skull Anatomy Quiz?</p>
+        <button id="start-button" onclick="startQuiz()">Yes, Start Quiz</button>
+    </div>
+
     <!-- Quiz Content -->
     <div id="quiz-container">
-        <p id="question">Question 1: Which bone forms the forehead?</p>
+        <p id="question"></p>
         <div id="options"></div>
         <button id="next-button" onclick="nextQuestion()">Next Question</button>
     </div>
@@ -43,6 +49,18 @@
             ]},
             { type: "annotation", text: "Click on the annotation corresponding to the Optic Canal.", annotationId: 3 }
         ];
+
+        // Function to show "Start Quiz?" prompt after 5 seconds
+        setTimeout(() => {
+            document.getElementById("start-quiz-container").style.display = "block";
+        }, 5000);
+
+        // Function to start the quiz
+        function startQuiz() {
+            document.getElementById("start-quiz-container").style.display = "none";
+            document.getElementById("quiz-container").style.display = "block";
+            nextQuestion();
+        }
 
         function nextQuestion() {
             if (currentQuestionIndex < questions.length) {
@@ -60,15 +78,9 @@
                 } else if (questionData.type === "annotation") {
                     document.getElementById("options").innerHTML = `<p>Click on Annotation #${questionData.annotationId}.</p>`;
 
-                    // Ensure the API is connected before navigating
+                    // Ensure Sketchfab API is connected before navigating
                     if (sketchfabAPI) {
-                        console.log("Navigating to Annotation #" + questionData.annotationId);
                         sketchfabAPI.gotoAnnotation(questionData.annotationId);
-                    } else {
-                        console.log("API disconnected—reconnecting...");
-                        initSketchfabAPI(() => {
-                            sketchfabAPI.gotoAnnotation(questionData.annotationId);
-                        });
                     }
                 }
 
@@ -78,7 +90,7 @@
             }
         }
 
-        function initSketchfabAPI(callback) {
+        function initSketchfabAPI() {
             var iframe = document.getElementById('api-frame');
             var client = new Sketchfab(iframe);
 
@@ -95,20 +107,15 @@
                             alert("Try Again! That is not the correct annotation.");
                         }
                     });
-
-                    if (callback) {
-                        callback();
-                    }
                 },
                 error: function() {
                     console.log("Sketchfab API failed to load.");
-                    alert("Error loading Sketchfab model.");
                 }
             });
         }
 
         window.onload = () => {
-            initSketchfabAPI(() => nextQuestion());
+            initSketchfabAPI();
         };
     </script>
 
