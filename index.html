@@ -2,61 +2,26 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Interactive 3D Quiz</title>
-    <script type="text/javascript" src="https://static.sketchfab.com/api/sketchfab-viewer-1.12.1.js"></script>
+    <title>Interactive 3D Quiz Hub</title>
     <style>
-        body, html {
-            margin: 0;
-            padding: 0;
-            width: 100%;
-            height: 100%;
-            overflow: hidden;
-        }
-        #api-frame {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            border: none;
-        }
-        #quiz-container {
-            position: absolute;
-            bottom: 20px;
-            left: 20px;
-            background: rgba(255, 255, 255, 0.8);
-            padding: 10px;
-            border-radius: 5px;
-        }
+        body { font-family: Arial, sans-serif; text-align: center; background-color: #f0f0f0; }
+        .container { max-width: 800px; margin: auto; padding: 20px; background: white; border-radius: 10px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+        .logo { width: 200px; margin-bottom: 20px; }
+        .quiz-link { display: block; margin: 15px auto; padding: 10px; background-color: #007bff; color: white; text-decoration: none; width: 250px; border-radius: 5px; font-size: 18px; }
+        .quiz-link:hover { background-color: #0056b3; }
     </style>
 </head>
 <body>
 
-    <!-- Header Placeholder -->
-    <div id="header"></div>
+    <div class="container">
+        <img class="logo" src="school-logo.png" alt="School Logo">
+        <h1>Welcome to the Interactive Quiz Hub</h1>
+        <p>Select a quiz below:</p>
 
-    <script>
-        fetch("header.html")
-            .then(response => response.text())
-            .then(data => document.getElementById("header").innerHTML = data);
-    </script>
-
-    <!-- Sketchfab 3D Model Embed -->
-    <iframe id="api-frame" src="https://sketchfab.com/models/fd3ccceafd5947acaacb468be88d1a9c/embed"
-        allow="autoplay; fullscreen; xr-spatial-tracking; gyroscope; accelerometer" allowfullscreen>
-    </iframe>
-
-    <!-- Quiz Section -->
-    <div id="quiz-container">
-        <div id="question">Question will go here...</div>
-        <div id="options">
-            <button onclick="alert('Correct!')">Option A</button>
-            <button onclick="alert('Try Again!')">Option B</button>
-        </div>
-        <button id="next-button" onclick="nextQuestion()">Next</button>
+        <a class="quiz-link" href="skull-anatomy.html">Quiz 1: Skull Anatomy</a>
+        <a class="quiz-link" href="quiz2.html">Quiz 2: Science Challenge</a>
+        <a class="quiz-link" href="quiz3.html">Quiz 3: History Explorer</a>
     </div>
-
-    <script src="app.js"></script>
 
 </body>
 </html>
