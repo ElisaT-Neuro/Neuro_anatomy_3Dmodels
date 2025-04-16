@@ -36,7 +36,6 @@
         let sketchfabAPI;
         let currentQuestionIndex = 0;
 
-        // Quiz questions (annotation-based and multiple-choice)
         const questions = [
             { type: "multipleChoice", text: "Which bone forms the forehead?", options: [
                 { answer: "Frontal Bone", correct: true },
@@ -59,8 +58,22 @@
                         document.getElementById("options").appendChild(button);
                     });
                 } else if (questionData.type === "annotation") {
-                    document.getElementById("options").innerHTML = `<p>Use the Sketchfab model and click annotation #${questionData.annotationId}.</p>`;
-                    sketchfabAPI.gotoAnnotation(questionData.annotationId);
+                    document.getElementById("options").innerHTML = `<p>Click on Annotation #${questionData.annotationId} in the Sketchfab model.</p>`;
+                    
+                    // Make sure Sketchfab API is loaded before navigating
+                    if (sketchfabAPI) {
+                        console.log("Navigating to Annotation #" + questionData.annotationId);
+                        sketchfabAPI.gotoAnnotation(questionData.annotationId);
+                    } else {
+                        console.log("Sketchfab API not loaded yet, retrying...");
+                        setTimeout(() => {
+                            if (sketchfabAPI) {
+                                sketchfabAPI.gotoAnnotation(questionData.annotationId);
+                            } else {
+                                alert("Error: Sketchfab API failed to load.");
+                            }
+                        }, 2000);
+                    }
                 }
 
                 currentQuestionIndex++;
@@ -76,6 +89,8 @@
             client.init({
                 success: function(api) {
                     sketchfabAPI = api;
+                    console.log("Sketchfab API Loaded Successfully!");
+
                     sketchfabAPI.addEventListener('annotationFocus', function(index) {
                         const currentQuestion = questions[currentQuestionIndex - 1];
                         if (currentQuestion.type === "annotation" && index === currentQuestion.annotationId) {
@@ -87,11 +102,11 @@
                 },
                 error: function() {
                     console.log("Sketchfab API failed to load.");
+                    alert("Error loading Sketchfab model.");
                 }
             });
         }
 
-        // Initialize Sketchfab API before quiz starts
         window.onload = () => {
             initSketchfabAPI();
             nextQuestion();
