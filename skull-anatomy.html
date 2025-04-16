@@ -2,60 +2,38 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Skull Anatomy Quiz</title>
-    <script type="text/javascript" src="https://static.sketchfab.com/api/sketchfab-viewer-1.12.1.js"></script>
+    <title>Skull Anatomy Explorer</title>
+    <script src="app.js"></script> <!-- Load quiz logic -->
     <style>
         body { font-family: Arial, sans-serif; text-align: center; margin: 0; background-color: #f0f0f0; }
         #header { padding: 20px; background: white; box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
         #api-frame { width: 80%; height: 500px; border: none; margin-top: 20px; }
-        #quiz-container { margin-top: 20px; background: rgba(255, 255, 255, 0.9); padding: 15px; border-radius: 5px; display: inline-block; }
-        #next-button { background-color: #007bff; color: white; padding: 10px; border: none; cursor: pointer; border-radius: 5px; margin-top: 10px; }
-        #next-button:hover { background-color: #0056b3; }
+        #quiz-container, #start-quiz-button { display: none; margin-top: 20px; }
+        #start-quiz-button, #next-button { background-color: #007bff; color: white; padding: 10px; border: none; cursor: pointer; border-radius: 5px; }
+        #start-quiz-button:hover, #next-button:hover { background-color: #0056b3; }
     </style>
 </head>
 <body>
 
     <div id="header">
-        <h1>Skull Anatomy Quiz</h1>
+        <h1>Explore the Skull Anatomy</h1>
         <a href="index.html">Back to Quiz Selection</a>
     </div>
 
-    <!-- Sketchfab Model with Annotations -->
-    <iframe id="api-frame" src="https://sketchfab.com/models/fd3ccceafd5947acaacb468be88d1a9c/embed?annotation=1"
+    <!-- Sketchfab Model -->
+    <iframe id="api-frame" src="https://sketchfab.com/models/fd3ccceafd5947acaacb468be88d1a9c/embed"
         allow="autoplay; fullscreen; xr-spatial-tracking; gyroscope; accelerometer" allowfullscreen>
     </iframe>
 
+    <!-- Button to Start Quiz -->
+    <button id="start-quiz-button" onclick="startQuiz()">Start Quiz</button>
+
     <!-- Quiz Content -->
     <div id="quiz-container">
-        <p id="question">Question: Which bone forms the forehead?</p>
-        <div id="options">
-            <button onclick="answer('correct')">Frontal Bone</button>
-            <button onclick="answer('wrong')">Temporal Bone</button>
-        </div>
-        <button id="next-button" onclick="nextQuestion()">Next Question</button>
+        <p id="question"></p>
+        <div id="options"></div>
+        <button id="next-button" onclick="nextQuestion()" style="display:none;">Next Question</button>
     </div>
-
-    <script>
-        // Function to handle correct/wrong answers
-        function answer(result) {
-            if (result === "correct") {
-                alert("Correct!");
-            } else {
-                alert("Try Again!");
-            }
-        }
-
-        // Function to load next question
-        function nextQuestion() {
-            document.getElementById("question").innerText = "Question: Click on the annotation corresponding to the Optic Canal.";
-            document.getElementById("options").innerHTML = `
-                <p>Use the Sketchfab model to locate and click **Annotation #3**.</p>
-            `;
-            
-            // Automatically focus the Sketchfab model on annotation #3
-            document.getElementById("api-frame").src = "https://sketchfab.com/models/fd3ccceafd5947acaacb468be88d1a9c/embed?annotation=3";
-        }
-    </script>
 
 </body>
 </html>
