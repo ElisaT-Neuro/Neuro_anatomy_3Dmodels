@@ -59,7 +59,7 @@ function nextQuestion() {
     if (currentQuestionIndex < questions.length) {
         let questionData = questions[currentQuestionIndex];
         document.getElementById("question").innerText = questionData.question;
-        document.getElementById("options").innerHTML = ""; // Clear previous options
+        document.getElementById("options").innerHTML = "";
 
         if (questionData.type === "multipleChoice") {
             questionData.options.forEach(option => {
@@ -71,10 +71,11 @@ function nextQuestion() {
         } else if (questionData.type === "annotation") {
             document.getElementById("options").innerHTML = `<p>Click on Annotation #${questionData.annotationId}.</p>`;
             sketchfabAPI.gotoAnnotation(questionData.annotationId);
+            **// DO NOT automatically increment currentQuestionIndex**  
         }
     } else {
         alert(`Quiz complete! Your score: ${score}`);
-        document.getElementById("quiz-container").style.display = "none"; // Hide quiz after completion
+        document.getElementById("quiz-container").style.display = "none";
     }
 }
 
