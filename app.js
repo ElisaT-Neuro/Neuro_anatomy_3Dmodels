@@ -1,6 +1,6 @@
 // Select the Sketchfab iframe
 var iframe = document.getElementById('api-frame');
-var client = new Sketchfab('1.12.1', iframe); // Ensure correct API initialization
+var client = new Sketchfab(iframe); // Ensure correct API initialization
 var uid = 'fd3ccceafd5947acaacb468be88d1a9c'; // Skull model UID
 
 // Initialize quiz variables
