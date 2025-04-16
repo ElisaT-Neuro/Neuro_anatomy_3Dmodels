@@ -32,7 +32,7 @@ client.init(uid, {
         });
 
         api.addEventListener('annotationFocus', function(index) {
-            checkAnswer(currentQuestionIndex, index);
+            checkAnswer(index);
         });
     },
     error: function() {
@@ -41,9 +41,10 @@ client.init(uid, {
 });
 
 function startQuiz() {
-    document.getElementById("start-quiz-button").style.display = "block"; // Hide start button
-    document.getElementById("quiz-container").style.display = "block"; // Show quiz UI
-    nextQuestion();
+    document.getElementById("start-quiz-button").style.display = "none"; // Hide start button
+    document.getElementById("quiz-container").style.display = "block"; // Show quiz container
+    currentQuestionIndex = 0; // Reset question index
+    nextQuestion(); // Start first question
 }
 
 function nextQuestion() {
@@ -56,15 +57,15 @@ function nextQuestion() {
             questionData.options.forEach(option => {
                 let button = document.createElement("button");
                 button.innerText = option.answer;
-                button.onclick = () => answer(option.correct);
+                button.onclick = () => {
+                    answer(option.correct);
+                };
                 document.getElementById("options").appendChild(button);
             });
         } else if (questionData.type === "annotation") {
             document.getElementById("options").innerHTML = `<p>Click on Annotation #${questionData.annotationId}.</p>`;
             sketchfabAPI.gotoAnnotation(questionData.annotationId);
         }
-
-        currentQuestionIndex++;
     } else {
         alert(`Quiz complete! Your score: ${score}`);
         document.getElementById("quiz-container").style.display = "none"; // Hide quiz after completion
@@ -77,15 +78,21 @@ function answer(isCorrect) {
         score++;
     } else {
         alert("Incorrect, try again.");
+        return; // Prevent moving to the next question if wrong answer
     }
-    document.getElementById("next-button").style.display = "block"; // Show next question button
+    
+    currentQuestionIndex++; // Move to the next question **only if correct**
+    setTimeout(nextQuestion, 1000); // Add slight delay before moving
 }
 
-function checkAnswer(questionIndex, selectedAnnotation) {
-    if (questions[questionIndex].type === "annotation" && selectedAnnotation === questions[questionIndex].annotationId) {
+function checkAnswer(selectedAnnotation) {
+    let questionData = questions[currentQuestionIndex];
+
+    if (questionData.type === "annotation" && selectedAnnotation === questionData.annotationId) {
         alert("Correct!");
         score++;
-        nextQuestion();
+        currentQuestionIndex++;
+        setTimeout(nextQuestion, 1000); // Move to next question with slight delay
     } else {
         alert("Incorrect, try again.");
     }
