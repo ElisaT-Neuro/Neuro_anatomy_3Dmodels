@@ -32,12 +32,31 @@
 </head>
 <body>
 
-    <iframe id="api-frame" src="https://sketchfab.com/models/fd3ccceafd5947acaacb468be88d1a9c/embed" allow="autoplay; fullscreen; xr-spatial-tracking; gyroscope; accelerometer" allowfullscreen></iframe>
+    <!-- Header Placeholder -->
+    <div id="header"></div>
+
+    <script>
+        fetch("header.html")
+            .then(response => response.text())
+            .then(data => document.getElementById("header").innerHTML = data);
+    </script>
+
+    <!-- Sketchfab 3D Model Embed -->
+    <iframe id="api-frame" src="https://sketchfab.com/models/fd3ccceafd5947acaacb468be88d1a9c/embed"
+        allow="autoplay; fullscreen; xr-spatial-tracking; gyroscope; accelerometer" allowfullscreen>
+    </iframe>
+
+    <!-- Quiz Section -->
     <div id="quiz-container">
-        <div id="question"></div>
-        <div id="options"></div>
+        <div id="question">Question will go here...</div>
+        <div id="options">
+            <button onclick="alert('Correct!')">Option A</button>
+            <button onclick="alert('Try Again!')">Option B</button>
+        </div>
         <button id="next-button" onclick="nextQuestion()">Next</button>
     </div>
+
     <script src="app.js"></script>
+
 </body>
 </html>
