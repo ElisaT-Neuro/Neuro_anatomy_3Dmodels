@@ -36,7 +36,7 @@ client.init(uid, {
             document.getElementById("start-quiz-button").style.display = "block"; // Show Start Quiz button
         });
 
-        api.addEventListener('annotationFocus', function(index) {
+        api.addEventListener('annotationSelect', function(index) {
             if (quizStarted) checkAnswer(index);
         });
     },
@@ -95,13 +95,18 @@ function answer(isCorrect) {
 function checkAnswer(selectedAnnotation) {
     let questionData = questions[currentQuestionIndex];
 
-    if (questionData.type === "annotation" && selectedAnnotation === questionData.annotationId) {
+    // Verify that the question requires annotation clicks
+    if (questionData.type !== "annotation") {
+        return; // Do nothing if this isn't an annotation-based question
+    }
+
+    // Ensure the annotation ID matches before proceeding
+    if (selectedAnnotation === questionData.annotationId) {
         alert("Correct!");
         score++;
-        currentQuestionIndex++; // Move forward after correct selection
+        currentQuestionIndex++;
         setTimeout(nextQuestion, 1000);
     } else {
         alert("Incorrect, try again.");
     }
 }
-
