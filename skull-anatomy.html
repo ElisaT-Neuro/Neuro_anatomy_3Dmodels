@@ -27,7 +27,7 @@
 
     <!-- Quiz Content -->
     <div id="quiz-container">
-        <p id="question"></p>
+        <p id="question">Question 1: Which bone forms the forehead?</p>
         <div id="options"></div>
         <button id="next-button" onclick="nextQuestion()">Next Question</button>
     </div>
@@ -36,38 +36,15 @@
         let sketchfabAPI;
         let currentQuestionIndex = 0;
 
-        // List of quiz questions (supports annotation-based + multiple choice questions)
+        // Quiz questions (annotation-based and multiple-choice)
         const questions = [
-            {
-                type: "multipleChoice",
-                text: "Which bone forms the forehead?",
-                options: [
-                    { answer: "Frontal Bone", correct: true },
-                    { answer: "Temporal Bone", correct: false }
-                ]
-            },
-            {
-                type: "annotation",
-                text: "Click on the annotation corresponding to the Optic Canal.",
-                annotationId: 3
-            },
-            {
-                type: "multipleChoice",
-                text: "Which part of the skull protects the brain?",
-                options: [
-                    { answer: "Cranial Vault", correct: true },
-                    { answer: "Mandible", correct: false }
-                ]
-            },
-            {
-                type: "annotation",
-                text: "Click on the annotation for the Foramen Magnum.",
-                annotationId: 4
-            },
-            // Add more questions here up to 10+
+            { type: "multipleChoice", text: "Which bone forms the forehead?", options: [
+                { answer: "Frontal Bone", correct: true },
+                { answer: "Temporal Bone", correct: false }
+            ]},
+            { type: "annotation", text: "Click on the annotation corresponding to the Optic Canal.", annotationId: 3 }
         ];
 
-        // Function to load the next question
         function nextQuestion() {
             if (currentQuestionIndex < questions.length) {
                 const questionData = questions[currentQuestionIndex];
@@ -92,7 +69,6 @@
             }
         }
 
-        // Initialize Sketchfab API
         function initSketchfabAPI() {
             var iframe = document.getElementById('api-frame');
             var client = new Sketchfab(iframe);
@@ -115,10 +91,10 @@
             });
         }
 
-        // Load Sketchfab API when page is ready
+        // Initialize Sketchfab API before quiz starts
         window.onload = () => {
             initSketchfabAPI();
-            nextQuestion(); // Load first question automatically
+            nextQuestion();
         };
     </script>
 
