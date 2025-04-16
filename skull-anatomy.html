@@ -2,126 +2,59 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Skull Anatomy Explorer</title>
+    <title>Skull Anatomy Quiz</title>
     <script type="text/javascript" src="https://static.sketchfab.com/api/sketchfab-viewer-1.12.1.js"></script>
     <style>
         body { font-family: Arial, sans-serif; text-align: center; margin: 0; background-color: #f0f0f0; }
         #header { padding: 20px; background: white; box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
-        #viewer-container { width: 80%; height: 500px; margin: auto; }
-        #quiz-container, #start-quiz-container { display: none; margin-top: 20px; background: rgba(255, 255, 255, 0.9); padding: 15px; border-radius: 5px; }
-        #start-button, #next-button { background-color: #007bff; color: white; padding: 10px; border: none; cursor: pointer; border-radius: 5px; margin-top: 10px; }
-        #start-button:hover, #next-button:hover { background-color: #0056b3; }
+        #api-frame { width: 80%; height: 500px; border: none; margin-top: 20px; }
+        #quiz-container { margin-top: 20px; background: rgba(255, 255, 255, 0.9); padding: 15px; border-radius: 5px; display: inline-block; }
+        #next-button { background-color: #007bff; color: white; padding: 10px; border: none; cursor: pointer; border-radius: 5px; margin-top: 10px; }
+        #next-button:hover { background-color: #0056b3; }
     </style>
 </head>
 <body>
 
     <div id="header">
-        <h1>Explore the Skull Anatomy</h1>
+        <h1>Skull Anatomy Quiz</h1>
         <a href="index.html">Back to Quiz Selection</a>
     </div>
 
-    <!-- Sketchfab Viewer API Container -->
-    <div id="viewer-container"></div>
-
-    <!-- Prompt to Start Quiz -->
-    <div id="start-quiz-container">
-        <p>Would you like to take the Skull Anatomy Quiz?</p>
-        <button id="start-button" onclick="startQuiz()">Yes, Start Quiz</button>
-    </div>
+    <!-- Sketchfab Model with Annotations -->
+    <iframe id="api-frame" src="https://sketchfab.com/models/fd3ccceafd5947acaacb468be88d1a9c/embed?annotation=1"
+        allow="autoplay; fullscreen; xr-spatial-tracking; gyroscope; accelerometer" allowfullscreen>
+    </iframe>
 
     <!-- Quiz Content -->
     <div id="quiz-container">
-        <p id="question"></p>
-        <div id="options"></div>
+        <p id="question">Question: Which bone forms the forehead?</p>
+        <div id="options">
+            <button onclick="answer('correct')">Frontal Bone</button>
+            <button onclick="answer('wrong')">Temporal Bone</button>
+        </div>
         <button id="next-button" onclick="nextQuestion()">Next Question</button>
     </div>
 
     <script>
-        let sketchfabAPI;
-        let currentQuestionIndex = 0;
-        let sketchfabReady = false;
-        const modelID = "fd3ccceafd5947acaacb468be88d1a9c"; // Replace with your Sketchfab model ID
-
-        const questions = [
-            { type: "multipleChoice", text: "Which bone forms the forehead?", options: [
-                { answer: "Frontal Bone", correct: true },
-                { answer: "Temporal Bone", correct: false }
-            ]},
-            { type: "annotation", text: "Click on the annotation corresponding to the Optic Canal.", annotationId: 3 }
-        ];
-
-        function nextQuestion() {
-            if (currentQuestionIndex < questions.length) {
-                const questionData = questions[currentQuestionIndex];
-                document.getElementById("question").innerText = questionData.text;
-                document.getElementById("options").innerHTML = "";
-
-                if (questionData.type === "multipleChoice") {
-                    questionData.options.forEach(option => {
-                        let button = document.createElement("button");
-                        button.innerText = option.answer;
-                        button.onclick = () => alert(option.correct ? "Correct!" : "Try Again!");
-                        document.getElementById("options").appendChild(button);
-                    });
-                } else if (questionData.type === "annotation") {
-                    document.getElementById("options").innerHTML = `<p>Click on Annotation #${questionData.annotationId}.</p>`;
-
-                    if (sketchfabReady) {
-                        sketchfabAPI.gotoAnnotation(questionData.annotationId);
-                    }
-                }
-
-                currentQuestionIndex++;
+        // Function to handle correct/wrong answers
+        function answer(result) {
+            if (result === "correct") {
+                alert("Correct!");
             } else {
-                alert("Quiz Complete! Thanks for participating.");
+                alert("Try Again!");
             }
         }
 
-        function startQuiz() {
-            document.getElementById("start-quiz-container").style.display = "none";
-            document.getElementById("quiz-container").style.display = "block";
-            nextQuestion();
+        // Function to load next question
+        function nextQuestion() {
+            document.getElementById("question").innerText = "Question: Click on the annotation corresponding to the Optic Canal.";
+            document.getElementById("options").innerHTML = `
+                <p>Use the Sketchfab model to locate and click **Annotation #3**.</p>
+            `;
+            
+            // Automatically focus the Sketchfab model on annotation #3
+            document.getElementById("api-frame").src = "https://sketchfab.com/models/fd3ccceafd5947acaacb468be88d1a9c/embed?annotation=3";
         }
-
-        function initSketchfabAPI() {
-            var iframe = document.createElement("iframe");
-            iframe.setAttribute("src", `https://sketchfab.com/models/${modelID}/embed`);
-            iframe.setAttribute("allow", "autoplay; fullscreen; xr-spatial-tracking; gyroscope; accelerometer");
-            iframe.style.width = "100%";
-            iframe.style.height = "500px";
-            iframe.style.border = "none";
-
-            document.getElementById("viewer-container").appendChild(iframe);
-
-            var client = new Sketchfab(iframe);
-
-            client.init({
-                success: function(api) {
-                    sketchfabAPI = api;
-                    sketchfabReady = true;
-                    console.log("Sketchfab API Loaded Successfully!");
-
-                    sketchfabAPI.addEventListener('annotationFocus', function(index) {
-                        const currentQuestion = questions[currentQuestionIndex - 1];
-                        if (currentQuestion.type === "annotation" && index === currentQuestion.annotationId) {
-                            alert("Correct! You found the right annotation.");
-                        } else if (currentQuestion.type === "annotation") {
-                            alert("Try Again! That is not the correct annotation.");
-                        }
-                    });
-                },
-                error: function() {
-                    console.log("Sketchfab API failed to load.");
-                }
-            });
-        }
-
-        window.onload = () => {
-            initSketchfabAPI();
-            setTimeout(() => {
-                document.getElementById("start-quiz-container").style.display = "block";
-            }, 5000);
-        };
     </script>
 
 </body>
