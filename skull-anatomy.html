@@ -3,16 +3,21 @@
 <head>
     <meta charset="UTF-8">
     <title>Skull Anatomy Explorer</title>
-    <script src="app.js"></script> <!-- Load quiz logic -->
-    <style>
-body { font-family: Arial, sans-serif; text-align: center; margin: 0; background-color: #f0f0f0; }
-#header { padding: 20px; background: white; box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
-#api-frame { width: 80%; height: 500px; border: none; margin-top: 20px; }
-#quiz-container { display: none; margin-top: 20px; } /* Keep quiz hidden initially */
-#start-quiz-button { background-color: #007bff; color: white; padding: 10px; border: none; cursor: pointer; border-radius: 5px; display: block !important; } /* Ensure start button is visible */
-#start-quiz-button:hover, #next-button:hover { background-color: #0056b3; }
+    
+    <!-- Load Sketchfab API FIRST -->
+    <script type="text/javascript" src="https://static.sketchfab.com/api/sketchfab-viewer-1.12.1.js"></script>
 
-        
+    <!-- Load Quiz Logic -->
+    <script src="app.js" defer></script> 
+
+    <style>
+        body { font-family: Arial, sans-serif; text-align: center; margin: 0; background-color: #f0f0f0; }
+        #header { padding: 20px; background: white; box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
+        #api-frame { width: 80%; height: 500px; border: none; margin-top: 20px; }
+        #quiz-container { display: none; margin-top: 20px; }
+        #start-quiz-button { display: none; background-color: #007bff; color: white; padding: 10px; border: none; cursor: pointer; border-radius: 5px; }
+        #next-button { background-color: #007bff; color: white; padding: 10px; border: none; cursor: pointer; border-radius: 5px; display: none; }
+        #start-quiz-button:hover, #next-button:hover { background-color: #0056b3; }
     </style>
 </head>
 <body>
@@ -27,14 +32,14 @@ body { font-family: Arial, sans-serif; text-align: center; margin: 0; background
         allow="autoplay; fullscreen; xr-spatial-tracking; gyroscope; accelerometer" allowfullscreen>
     </iframe>
 
-    <!-- Button to Start Quiz -->
+    <!-- Button to Start Quiz (Hidden Until API is Ready) -->
     <button id="start-quiz-button" onclick="startQuiz()">Start Quiz</button>
 
-    <!-- Quiz Content -->
+    <!-- Quiz Content (Hidden Until Quiz Starts) -->
     <div id="quiz-container">
         <p id="question"></p>
         <div id="options"></div>
-        <button id="next-button" onclick="nextQuestion()" style="display:none;">Next Question</button>
+        <button id="next-button" onclick="nextQuestion()">Next Question</button>
     </div>
 
 </body>
