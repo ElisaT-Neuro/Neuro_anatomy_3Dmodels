@@ -41,7 +41,7 @@ client.init(uid, {
 });
 
 function startQuiz() {
-    document.getElementById("start-quiz-button").style.display = "none"; // Hide start button
+    document.getElementById("start-quiz-button").style.display = "block"; // Hide start button
     document.getElementById("quiz-container").style.display = "block"; // Show quiz UI
     nextQuestion();
 }
