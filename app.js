@@ -1,28 +1,44 @@
-// … in your client.init success block …
+client.init(uid, {
+  success: function(api) {
+    sketchfabAPI = api;
+    api.start();
 
--    api.addEventListener('annotationSelect', function(index) {
--      if (!quizStarted) return;
--      if (skipAnnotationEvent) {
--        skipAnnotationEvent = false;
--        return;
--      }
--      checkAnswer(index);
--    });
+    api.addEventListener('viewerready', function() {
+      const btn = document.getElementById("start-quiz-button");
+      btn.style.display = "block";
+      btn.addEventListener("click", startQuiz);
+    });
 
-+    api.addEventListener('annotationSelect', function(index) {
-+      // 1) only during the quiz…
-+      if (!quizStarted) return;
+-   api.addEventListener('annotationSelect', function(index) {
+-     // only during annotation question…
+-     let q = questions[currentQuestionIndex];
+-     if (!quizStarted || q.type !== 'annotation') return;
+-     if (skipAnnotationEvent) {
+-       skipAnnotationEvent = false;
+-       return;
+-     }
+-     checkAnswer(index);
+-   });
++   api.addEventListener('annotationSelect', function(index) {
++     // 1) must be in the quiz
++     if (!quizStarted) return;
 +
-+      // 2) only if we're on an annotation question
-+      let q = questions[currentQuestionIndex];
-+      if (q.type !== 'annotation') return;
++     // 2) must be the annotation question
++     let q = questions[currentQuestionIndex];
++     if (q.type !== 'annotation') return;
 +
-+      // 3) ignore the programmatic “gotoAnnotation” event
-+      if (skipAnnotationEvent) {
-+        skipAnnotationEvent = false;
-+        return;
-+      }
++     // 3) skip our own programmatic jump
++     if (skipAnnotationEvent) {
++       skipAnnotationEvent = false;
++       return;
++     }
 +
-+      // 4) now it really is the student clicking the pin—give feedback
-+      checkAnswer(index);
-+    });
++     // 4) only react if they actually clicked the *correct* pin
++     if (index !== q.annotationId) {
++       return;
++     }
++
++     // 5) now give feedback
++     checkAnswer(index);
++   });
+
