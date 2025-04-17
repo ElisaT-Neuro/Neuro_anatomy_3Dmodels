@@ -1,46 +1,56 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>Skull Anatomy Explorer</title>
-    
-    <!-- Load Sketchfab API FIRST -->
-    <script type="text/javascript" src="https://static.sketchfab.com/api/sketchfab-viewer-1.12.1.js"></script>
+  <meta charset="UTF-8">
+  <title>Skull Anatomy Explorer</title>
 
-    <!-- Load Quiz Logic -->
-    <script src="app.js" defer></script> 
+  <!-- Sketchfab API -->
+  <script src="https://static.sketchfab.com/api/sketchfab-viewer-1.12.1.js"></script>
+  <!-- Your quiz logic -->
+  <script src="app.js" defer></script>
 
-    <style>
-        body { font-family: Arial, sans-serif; text-align: center; margin: 0; background-color: #f0f0f0; }
-        #header { padding: 20px; background: white; box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
-        #api-frame { width: 80%; height: 500px; border: none; margin-top: 20px; }
-        #quiz-container { display: none; margin-top: 20px; }
-        #start-quiz-button { display: block; background-color: #007bff; color: white; padding: 10px; border: none; cursor: pointer; border-radius: 5px; }
-        #next-button { background-color: #007bff; color: white; padding: 10px; border: none; cursor: pointer; border-radius: 5px; display: none; }
-        #start-quiz-button:hover, #next-button:hover { background-color: #0056b3; }
-    </style>
+  <style>
+    body { font-family: Arial, sans-serif; text-align: center; margin: 0; background-color: #f0f0f0; }
+    #header { padding: 20px; background: white; box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
+    #api-frame { width: 80%; height: 500px; border: none; margin-top: 20px; }
+
+    /* Hide until JS shows it */
+    #start-quiz-button {
+      display: none;
+      background-color: #007bff;
+      color: white;
+      padding: 10px;
+      border: none;
+      cursor: pointer;
+      border-radius: 5px;
+      margin-top: 20px;
+    }
+    #start-quiz-button:hover { background-color: #0056b3; }
+
+    /* Quiz UI hidden until start */
+    #quiz-container { display: none; margin-top: 20px; }
+    #next-button { display: none; /* if you’re still using it */ }
+  </style>
 </head>
 <body>
+  <div id="header">
+    <h1>Explore the Skull Anatomy</h1>
+    <a href="index.html">Back to Quiz Selection</a>
+  </div>
 
-    <div id="header">
-        <h1>Explore the Skull Anatomy</h1>
-        <a href="index.html">Back to Quiz Selection</a>
-    </div>
+  <iframe id="api-frame"
+          src="https://sketchfab.com/models/fd3ccceafd5947acaacb468be88d1a9c/embed"
+          allow="autoplay; fullscreen; xr-spatial-tracking; gyroscope; accelerometer"
+          allowfullscreen>
+  </iframe>
 
-    <!-- Sketchfab Model -->
-    <iframe id="api-frame" src="https://sketchfab.com/models/fd3ccceafd5947acaacb468be88d1a9c/embed"
-        allow="autoplay; fullscreen; xr-spatial-tracking; gyroscope; accelerometer" allowfullscreen>
-    </iframe>
+  <!-- No onclick here -->
+  <button id="start-quiz-button">Start Quiz</button>
 
-    <!-- Button to Start Quiz (Hidden Until API is Ready) -->
-    <button id="start-quiz-button" onclick="startQuiz()">Start Quiz</button>
-
-    <!-- Quiz Content (Hidden Until Quiz Starts) -->
-    <div id="quiz-container">
-        <p id="question"></p>
-        <div id="options"></div>
-        <button id="next-button" onclick="nextQuestion()">Next Question</button>
-    </div>
-
+  <div id="quiz-container">
+    <p id="question"></p>
+    <div id="options"></div>
+    <button id="next-button">Next Question</button>
+  </div>
 </body>
 </html>
