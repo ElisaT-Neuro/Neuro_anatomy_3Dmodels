@@ -40,15 +40,20 @@ client.init(uid, {
         });
 
         api.addEventListener('annotationSelect', function(index) {
-            if (!quizStarted) return;                            // only during quiz
+            // 1) only during the quiz
+            if (!quizStarted) return;
+            // 2) only on annotation questions
             let q = questions[currentQuestionIndex];
-            if (q.type !== 'annotation') return;                 // only on annotation questions
-            if (skipAnnotationEvent) {                           // skip programmatic jump
+            if (q.type !== 'annotation') return;
+            // 3) skip our own programmatic jump
+            if (skipAnnotationEvent) {
                 skipAnnotationEvent = false;
                 return;
             }
-            if (index !== q.annotationId) return;                // ignore wrong pins
-            checkAnswer(index);                                  // now a real user click
+            // 4) only if the correct annotation was clicked
+            if (index !== q.annotationId) return;
+            // 5) now give feedback
+            checkAnswer(index);
         });
     },
     error: function() {
@@ -58,12 +63,12 @@ client.init(uid, {
 
 // Start the quiz when user clicks "Start Quiz"
 function startQuiz() {
-    document.getElementById("start-quiz-button").style.display = "none";
-    document.getElementById("quiz-container").style.display = "block";
-    quizStarted = true;
-    currentQuestionIndex = 0;
-    score = 0;
-    nextQuestion();
+    document.getElementById("start-quiz-button").style.display = "none"; // Hide Start button
+    document.getElementById("quiz-container").style.display = "block";   // Show quiz UI
+    quizStarted = true;       // Set quiz status
+    currentQuestionIndex = 0; // Reset question index
+    score = 0;                // Reset score
+    nextQuestion();           // Start first question
 }
 
 // Load next question
@@ -75,21 +80,26 @@ function nextQuestion() {
 
         if (q.type === "multipleChoice") {
             q.options.forEach(option => {
-                let button = document.createElement("button");
-                button.innerText = option.answer;
-                button.onclick = () => answer(option.correct);
-                document.getElementById("options").appendChild(button);
+                let btn = document.createElement("button");
+                btn.innerText = option.answer;
+                btn.onclick = () => answer(option.correct);
+                document.getElementById("options").appendChild(btn);
             });
         }
         else if (q.type === "annotation") {
             document.getElementById("options").innerHTML =
                 `<p>Click on Annotation #${q.annotationId}.</p>`;
-            skipAnnotationEvent = true;                          // ignore the upcoming programmatic event
-            sketchfabAPI.gotoAnnotation(q.annotationId);
+            // Prevent the ensuing annotationSelect from firing checkAnswer
+            skipAnnotationEvent = true;
+            setTimeout(() => {
+                sketchfabAPI.gotoAnnotation(q.annotationId);
+            }, 50);
         }
-    } else {
+    }
+    else {
         alert(`Quiz complete! Your score: ${score}`);
         document.getElementById("quiz-container").style.display = "none";
+        quizStarted = false;
     }
 }
 
@@ -107,6 +117,11 @@ function answer(isCorrect) {
 
 // Handle annotation-based answers
 function checkAnswer(selectedAnnotation) {
-    // This will only be called for the correct annotation
+    let q = questions[currentQuestionIndex];
+    if (q.type !== "annotation") return;
+
     alert("Correct!");
     score++;
+    currentQuestionIndex++;
+    setTimeout(nextQuestion, 1000);
+}
