@@ -1,60 +1,28 @@
-// … your existing top‐of‐file declarations …
-let skipAnnotationEvent = false;
+// … in your client.init success block …
 
-// Initialize Sketchfab Viewer API
-client.init(uid, {
-  success: function(api) {
-    sketchfabAPI = api;
-    api.start();
+-    api.addEventListener('annotationSelect', function(index) {
+-      if (!quizStarted) return;
+-      if (skipAnnotationEvent) {
+-        skipAnnotationEvent = false;
+-        return;
+-      }
+-      checkAnswer(index);
+-    });
 
-    api.addEventListener('viewerready', function() {
-      console.log('Viewer is ready');
-      const btn = document.getElementById("start-quiz-button");
-      btn.style.display = "block";
-      btn.addEventListener("click", startQuiz);
-    });
-
-    api.addEventListener('annotationSelect', function(index) {
-      console.log('→ annotationSelect event', { index, skipAnnotationEvent });
-      if (!quizStarted) return;
-      if (skipAnnotationEvent) {
-        console.log('   skipping programmatic event');
-        skipAnnotationEvent = false;
-        return;
-      }
-      console.log('   treating as user click');
-      checkAnswer(index);
-    });
-  },
-  error: function() {
-    console.log('Viewer error');
-  }
-});
-
-function nextQuestion() {
-  if (currentQuestionIndex < questions.length) {
-    let q = questions[currentQuestionIndex];
-    document.getElementById("question").innerText = q.question;
-    document.getElementById("options").innerHTML = "";
-
-    if (q.type === "multipleChoice") {
-      // … unchanged …
-    }
-    else if (q.type === "annotation") {
-      document.getElementById("options").innerHTML =
-        `<p>Click on Annotation #${q.annotationId}.</p>`;
-
-      // 1) set the flag
-      skipAnnotationEvent = true;
-      console.log('→ will skip the next annotationSelect');
-
-      // 2) give the API a moment to settle, then jump
-      setTimeout(() => {
-        sketchfabAPI.gotoAnnotation(q.annotationId);
-      }, 50);
-    }
-  }
-  else {
-    // … quiz end …
-  }
-}
++    api.addEventListener('annotationSelect', function(index) {
++      // 1) only during the quiz…
++      if (!quizStarted) return;
++
++      // 2) only if we're on an annotation question
++      let q = questions[currentQuestionIndex];
++      if (q.type !== 'annotation') return;
++
++      // 3) ignore the programmatic “gotoAnnotation” event
++      if (skipAnnotationEvent) {
++        skipAnnotationEvent = false;
++        return;
++      }
++
++      // 4) now it really is the student clicking the pin—give feedback
++      checkAnswer(index);
++    });
