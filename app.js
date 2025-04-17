@@ -7,7 +7,8 @@ var uid = 'fd3ccceafd5947acaacb468be88d1a9c'; // Skull model UID
 let sketchfabAPI;
 let currentQuestionIndex = 0;
 let score = 0;
-let quizStarted = false; // Track if the quiz has started
+let quizStarted = false;         // Track if the quiz has started
+let skipAnnotationEvent = false; // Prevent programmatic selects from firing checkAnswer
 
 var questions = [
     {
@@ -33,11 +34,19 @@ client.init(uid, {
 
         api.addEventListener('viewerready', function() {
             console.log('Viewer is ready');
-            document.getElementById("start-quiz-button").style.display = "block"; // Show Start Quiz button
+            // Reveal and hook up the Start button
+            const btn = document.getElementById("start-quiz-button");
+            btn.style.display = "block";
+            btn.addEventListener("click", startQuiz);
         });
 
         api.addEventListener('annotationSelect', function(index) {
-            if (quizStarted) checkAnswer(index);
+            if (!quizStarted) return;
+            if (skipAnnotationEvent) {
+                skipAnnotationEvent = false;
+                return;
+            }
+            checkAnswer(index);
         });
     },
     error: function() {
@@ -48,10 +57,10 @@ client.init(uid, {
 // Start the quiz when user clicks "Start Quiz"
 function startQuiz() {
     document.getElementById("start-quiz-button").style.display = "none"; // Hide Start button
-    document.getElementById("quiz-container").style.display = "block"; // Show quiz UI
-    quizStarted = true; // Set quiz status
+    document.getElementById("quiz-container").style.display = "block";   // Show quiz UI
+    quizStarted = true;       // Set quiz status
     currentQuestionIndex = 0; // Reset question index
-    nextQuestion(); // Start first question
+    nextQuestion();           // Start first question
 }
 
 // Load next question
@@ -68,12 +77,16 @@ function nextQuestion() {
                 button.onclick = () => answer(option.correct);
                 document.getElementById("options").appendChild(button);
             });
-        } else if (questionData.type === "annotation") {
-            document.getElementById("options").innerHTML = `<p>Click on Annotation #${questionData.annotationId}.</p>`;
-            sketchfabAPI.gotoAnnotation(questionData.annotationId);
-            // DO NOT automatically increment currentQuestionIndex  
         }
-    } else {
+        else if (questionData.type === "annotation") {
+            document.getElementById("options").innerHTML =
+              `<p>Click on Annotation #${questionData.annotationId}.</p>`;
+            // Prevent the ensuing annotationSelect event from being treated as a user click
+            skipAnnotationEvent = true;
+            sketchfabAPI.gotoAnnotation(questionData.annotationId);
+        }
+    }
+    else {
         alert(`Quiz complete! Your score: ${score}`);
         document.getElementById("quiz-container").style.display = "none";
     }
@@ -94,13 +107,8 @@ function answer(isCorrect) {
 // Handle annotation-based answers
 function checkAnswer(selectedAnnotation) {
     let questionData = questions[currentQuestionIndex];
+    if (questionData.type !== "annotation") return;
 
-    // Verify that the question requires annotation clicks
-    if (questionData.type !== "annotation") {
-        return; // Do nothing if this isn't an annotation-based question
-    }
-
-    // Ensure the annotation ID matches before proceeding
     if (selectedAnnotation === questionData.annotationId) {
         alert("Correct!");
         score++;
