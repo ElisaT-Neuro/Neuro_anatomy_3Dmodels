@@ -1,127 +1,122 @@
-// Select the Sketchfab iframe
-var iframe = document.getElementById('api-frame');
-var client = new Sketchfab(iframe); // Ensure correct API initialization
-var uid = 'fd3ccceafd5947acaacb468be88d1a9c'; // Skull model UID
+// app.js
 
-// Initialize quiz variables
+// 1) Grab elements and initialize Sketchfab client
+const iframe = document.getElementById('api-frame');
+const client = new Sketchfab(iframe);
+const uid = 'fd3ccceafd5947acaacb468be88d1a9c'; // your model UID
+
+// 2) Quiz state
 let sketchfabAPI;
 let currentQuestionIndex = 0;
 let score = 0;
-let quizStarted = false;         // Track if the quiz has started
-let skipAnnotationEvent = false; // Prevent programmatic selects from firing checkAnswer
+let quizStarted = false;
+let skipAnnotationEvent = false;
 
-var questions = [
-    {
-        type: "multipleChoice",
-        question: "Which bone forms the forehead?",
-        options: [
-            { answer: "Frontal Bone", correct: true },
-            { answer: "Temporal Bone", correct: false }
-        ]
-    },
-    {
-        type: "annotation",
-        question: "Click on the annotation corresponding to the Optic Canal.",
-        annotationId: 3
-    }
+const questions = [
+  {
+    type: 'multipleChoice',
+    question: 'Which bone forms the forehead?',
+    options: [
+      { answer: 'Frontal Bone', correct: true },
+      { answer: 'Temporal Bone', correct: false }
+    ]
+  },
+  {
+    type: 'annotation',
+    question: 'Click on the annotation corresponding to the Optic Canal.',
+    annotationId: 3
+  }
 ];
 
-// Initialize Sketchfab Viewer API
+// 3) Wire up Start button right away (script is loaded with `defer`)
+const startBtn = document.getElementById('start-quiz-button');
+startBtn.addEventListener('click', startQuiz);
+
+// 4) Initialize Sketchfab viewer
 client.init(uid, {
-    success: function(api) {
-        sketchfabAPI = api;
-        api.start();
+  success: function(api) {
+    sketchfabAPI = api;
+    api.start();
 
-        api.addEventListener('viewerready', function() {
-            console.log('Viewer is ready');
-            const btn = document.getElementById("start-quiz-button");
-            btn.style.display = "block";
-            btn.addEventListener("click", startQuiz);
-        });
+    api.addEventListener('viewerready', function() {
+      console.log('Viewer is ready');
+      // reveal the button only once the model is loaded
+      startBtn.style.display = 'block';
+    });
 
-        api.addEventListener('annotationSelect', function(index) {
-            // 1) only during the quiz
-            if (!quizStarted) return;
-            // 2) only on annotation questions
-            let q = questions[currentQuestionIndex];
-            if (q.type !== 'annotation') return;
-            // 3) skip our own programmatic jump
-            if (skipAnnotationEvent) {
-                skipAnnotationEvent = false;
-                return;
-            }
-            // 4) only if the correct annotation was clicked
-            if (index !== q.annotationId) return;
-            // 5) now give feedback
-            checkAnswer(index);
-        });
-    },
-    error: function() {
-        console.log('Viewer error');
-    }
+    api.addEventListener('annotationSelect', function(index) {
+      if (!quizStarted) return;                   // ignore outside quiz
+      const q = questions[currentQuestionIndex];
+      if (q.type !== 'annotation') return;        // only on annotation questions
+      if (skipAnnotationEvent) {                  // skip programmatic
+        skipAnnotationEvent = false;
+        return;
+      }
+      if (index !== q.annotationId) return;       // wrong pin = no feedback
+      checkAnswer(index);
+    });
+  },
+  error: function() {
+    console.error('Sketchfab init error');
+  }
 });
 
-// Start the quiz when user clicks "Start Quiz"
+// 5) Start Quiz
 function startQuiz() {
-    document.getElementById("start-quiz-button").style.display = "none"; // Hide Start button
-    document.getElementById("quiz-container").style.display = "block";   // Show quiz UI
-    quizStarted = true;       // Set quiz status
-    currentQuestionIndex = 0; // Reset question index
-    score = 0;                // Reset score
-    nextQuestion();           // Start first question
+  startBtn.style.display = 'none';
+  document.getElementById('quiz-container').style.display = 'block';
+  quizStarted = true;
+  currentQuestionIndex = 0;
+  score = 0;
+  nextQuestion();
 }
 
-// Load next question
+// 6) Show Next Question
 function nextQuestion() {
-    if (currentQuestionIndex < questions.length) {
-        let q = questions[currentQuestionIndex];
-        document.getElementById("question").innerText = q.question;
-        document.getElementById("options").innerHTML = "";
+  if (currentQuestionIndex >= questions.length) {
+    alert(`Quiz complete! Your score: ${score}`);
+    document.getElementById('quiz-container').style.display = 'none';
+    quizStarted = false;
+    return;
+  }
 
-        if (q.type === "multipleChoice") {
-            q.options.forEach(option => {
-                let btn = document.createElement("button");
-                btn.innerText = option.answer;
-                btn.onclick = () => answer(option.correct);
-                document.getElementById("options").appendChild(btn);
-            });
-        }
-        else if (q.type === "annotation") {
-            document.getElementById("options").innerHTML =
-                `<p>Click on Annotation #${q.annotationId}.</p>`;
-            // Prevent the ensuing annotationSelect from firing checkAnswer
-            skipAnnotationEvent = true;
-            setTimeout(() => {
-                sketchfabAPI.gotoAnnotation(q.annotationId);
-            }, 50);
-        }
-    }
-    else {
-        alert(`Quiz complete! Your score: ${score}`);
-        document.getElementById("quiz-container").style.display = "none";
-        quizStarted = false;
-    }
+  const q = questions[currentQuestionIndex];
+  document.getElementById('question').innerText = q.question;
+  const opts = document.getElementById('options');
+  opts.innerHTML = '';
+
+  if (q.type === 'multipleChoice') {
+    q.options.forEach(opt => {
+      const btn = document.createElement('button');
+      btn.innerText = opt.answer;
+      btn.onclick = () => answer(opt.correct);
+      opts.appendChild(btn);
+    });
+  }
+  else if (q.type === 'annotation') {
+    opts.innerHTML = `<p>Click on Annotation #${q.annotationId}</p>`;
+    skipAnnotationEvent = true;
+    // tiny delay so skipAnnotationEvent is set before Sketchfab fires
+    setTimeout(() => sketchfabAPI.gotoAnnotation(q.annotationId), 50);
+  }
 }
 
-// Handle multiple-choice answers
+// 7) Handle Multiple‐Choice
 function answer(isCorrect) {
-    if (isCorrect) {
-        alert("Correct!");
-        score++;
-        currentQuestionIndex++;
-        setTimeout(nextQuestion, 1000);
-    } else {
-        alert("Incorrect, try again.");
-    }
-}
-
-// Handle annotation-based answers
-function checkAnswer(selectedAnnotation) {
-    let q = questions[currentQuestionIndex];
-    if (q.type !== "annotation") return;
-
-    alert("Correct!");
+  if (isCorrect) {
+    alert('Correct!');
     score++;
     currentQuestionIndex++;
     setTimeout(nextQuestion, 1000);
+  } else {
+    alert('Incorrect, try again.');
+  }
+}
+
+// 8) Handle Annotation‐Click
+function checkAnswer(index) {
+  alert('Correct!');
+  score++;
+  currentQuestionIndex++;
+  setTimeout(nextQuestion, 1000);
 }
