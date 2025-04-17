@@ -71,7 +71,7 @@ function nextQuestion() {
         } else if (questionData.type === "annotation") {
             document.getElementById("options").innerHTML = `<p>Click on Annotation #${questionData.annotationId}.</p>`;
             sketchfabAPI.gotoAnnotation(questionData.annotationId);
-            **// DO NOT automatically increment currentQuestionIndex**  
+            // DO NOT automatically increment currentQuestionIndex  
         }
     } else {
         alert(`Quiz complete! Your score: ${score}`);
