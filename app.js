@@ -10,7 +10,7 @@ let sketchfabAPI;
 let currentQuestionIndex = 0;
 let score = 0;
 let quizStarted = false;
-let skipAnnotationEvent = false;  // to swallow the programmatic jump
+let skipAnnotationEvent = false;  // swallow programmatic jumps
 
 const questions = [
   {
@@ -24,7 +24,7 @@ const questions = [
   {
     type: 'annotation',
     question: 'Click on the annotation corresponding to the Optic Canal.',
-    annotationId: 3       // this is *your* target index
+    annotationId: 3       // target pin index
   }
 ];
 
@@ -40,32 +40,31 @@ client.init(uid, {
 
     api.addEventListener('viewerready', function() {
       console.log('Viewer is ready');
-      // now it’s safe to show the button
+      // show Start only after model loaded
       startBtn.style.display = 'block';
     });
 
     api.addEventListener('annotationSelect', function(idx) {
-      // only during the annotation question of the quiz:
-      if (!quizStarted) return;
+      if (!quizStarted) return;                   // not in quiz
       const q = questions[currentQuestionIndex];
-      if (q.type !== 'annotation') return;
+      if (q.type !== 'annotation') return;        // only on annotation questions
 
-      // swallow the programmatic gotoAnnotation
+      // swallow our own gotoAnnotation call
       if (skipAnnotationEvent) {
         skipAnnotationEvent = false;
         return;
       }
 
-      // now it’s a real user click on *some* pin
+      // now it’s a real student click
       checkAnswer(idx);
     });
   },
   error: function() {
-    console.error('Failed to initialize Sketchfab');
+    console.error('Sketchfab init error');
   }
 });
 
-// 5) startQuiz: hide button, show container, reset state, first question
+// 5) startQuiz: hide button, show quiz, reset state
 function startQuiz() {
   startBtn.style.display = 'none';
   document.getElementById('quiz-container').style.display = 'block';
@@ -75,9 +74,9 @@ function startQuiz() {
   nextQuestion();
 }
 
-// 6) nextQuestion: render either MC or annotation
+// 6) nextQuestion: render MC or annotation
 function nextQuestion() {
-  // quiz end
+  // if done
   if (currentQuestionIndex >= questions.length) {
     alert(`Quiz complete! Your score: ${score}`);
     document.getElementById('quiz-container').style.display = 'none';
@@ -88,7 +87,7 @@ function nextQuestion() {
   const q = questions[currentQuestionIndex];
   document.getElementById('question').innerText = q.question;
   const opts = document.getElementById('options');
-  opts.innerHTML = '';
+  opts.innerHTML = '';  // clear previous buttons or hints
 
   if (q.type === 'multipleChoice') {
     q.options.forEach(opt => {
@@ -99,15 +98,13 @@ function nextQuestion() {
     });
   }
   else if (q.type === 'annotation') {
-    opts.innerHTML = `<p>Click on Annotation #${q.annotationId}</p>`;
-    // swallow the next annotationSelect event
+    // No hint about the numeric ID—just let them click the model!
     skipAnnotationEvent = true;
-    // little delay to ensure the flag is set
     setTimeout(() => sketchfabAPI.gotoAnnotation(q.annotationId), 50);
   }
 }
 
-// 7) Multiple‑choice handler
+// 7) answer handler for MC
 function answer(isCorrect) {
   if (isCorrect) {
     alert('Correct!');
@@ -119,10 +116,9 @@ function answer(isCorrect) {
   }
 }
 
-// 8) Annotation‑click handler (any pin click)
+// 8) checkAnswer for annotation clicks
 function checkAnswer(selectedIdx) {
   const q = questions[currentQuestionIndex];
-  // only annotation questions reach here
   if (selectedIdx === q.annotationId) {
     alert('Correct!');
     score++;
