@@ -1,130 +1,53 @@
-// app.js
-
-// 1) Grab the iframe and init Sketchfab
-const iframe = document.getElementById('api-frame');
-const client = new Sketchfab(iframe);
-const uid = 'fd3ccceafd5947acaacb468be88d1a9c';
-
-// 2) Quiz state
-let sketchfabAPI;
-let currentQuestionIndex = 0;
-let score = 0;
-let quizStarted = false;
-let skipAnnotationEvent = false;  // swallow programmatic jumps
-
-const questions = [
-  {
-    type: 'multipleChoice',
-    question: 'Which bone forms the forehead?',
-    options: [
-      { answer: 'Frontal Bone', correct: true },
-      { answer: 'Temporal Bone', correct: false }
-    ]
-  },
-  {
-    type: 'annotation',
-    question: 'Click on the annotation corresponding to the Optic Canal.',
-    annotationId: 3       // target pin index
-  }
-];
-
-// 3) Wire up Start button immediately
-const startBtn = document.getElementById('start-quiz-button');
-startBtn.addEventListener('click', startQuiz);
-
-// 4) Initialize the Sketchfab viewer
+// 1) In your init, remove the global annotationSelect handler altogether:
 client.init(uid, {
-  success: function(api) {
+  success(api) {
     sketchfabAPI = api;
     api.start();
-
-    api.addEventListener('viewerready', function() {
-      console.log('Viewer is ready');
-      // show Start only after model loaded
+    api.addEventListener('viewerready', () => {
       startBtn.style.display = 'block';
     });
-
-    api.addEventListener('annotationSelect', function(idx) {
-      if (!quizStarted) return;                   // not in quiz
-      const q = questions[currentQuestionIndex];
-      if (q.type !== 'annotation') return;        // only on annotation questions
-
-      // swallow our own gotoAnnotation call
-      if (skipAnnotationEvent) {
-        skipAnnotationEvent = false;
-        return;
-      }
-
-      // now it’s a real student click
-      checkAnswer(idx);
-    });
+    // NO more global api.addEventListener('annotationSelect', ...) here
   },
-  error: function() {
-    console.error('Sketchfab init error');
-  }
+  error() { console.error('Sketchfab init error'); }
 });
 
-// 5) startQuiz: hide button, show quiz, reset state
-function startQuiz() {
-  startBtn.style.display = 'none';
-  document.getElementById('quiz-container').style.display = 'block';
-  quizStarted = true;
-  currentQuestionIndex = 0;
-  score = 0;
-  nextQuestion();
-}
-
-// 6) nextQuestion: render MC or annotation
+// 2) In nextQuestion(), when you hit an annotation question, add a one‑off listener:
 function nextQuestion() {
-  // if done
   if (currentQuestionIndex >= questions.length) {
     alert(`Quiz complete! Your score: ${score}`);
-    document.getElementById('quiz-container').style.display = 'none';
     quizStarted = false;
+    document.getElementById('quiz-container').style.display = 'none';
     return;
   }
 
   const q = questions[currentQuestionIndex];
   document.getElementById('question').innerText = q.question;
   const opts = document.getElementById('options');
-  opts.innerHTML = '';  // clear previous buttons or hints
+  opts.innerHTML = '';
 
   if (q.type === 'multipleChoice') {
-    q.options.forEach(opt => {
-      const btn = document.createElement('button');
-      btn.innerText = opt.answer;
-      btn.onclick = () => answer(opt.correct);
-      opts.appendChild(btn);
-    });
+    // …your existing MC code…
   }
   else if (q.type === 'annotation') {
-    // No hint about the numeric ID—just let them click the model!
-    skipAnnotationEvent = true;
-    setTimeout(() => sketchfabAPI.gotoAnnotation(q.annotationId), 50);
-  }
-}
+    // Optionally pan/zoom to the pin as a hint
+    sketchfabAPI.gotoAnnotation(q.annotationId);
 
-// 7) answer handler for MC
-function answer(isCorrect) {
-  if (isCorrect) {
-    alert('Correct!');
-    score++;
-    currentQuestionIndex++;
-    setTimeout(nextQuestion, 1000);
-  } else {
-    alert('Incorrect, try again.');
-  }
-}
+    // Create a one‑off handler
+    const handler = function(selectedIdx) {
+      sketchfabAPI.removeEventListener('annotationSelect', handler);
+      if (selectedIdx === q.annotationId) {
+        alert('Correct!');
+        score++;
+        currentQuestionIndex++;
+        setTimeout(nextQuestion, 500);
+      } else {
+        alert('Incorrect, try again.');
+        // we leave the same question in place until they pick the right pin
+        // you could re‑attach the handler here if you want multiple attempts
+      }
+    };
 
-// 8) checkAnswer for annotation clicks
-function checkAnswer(selectedIdx) {
-  const q = questions[currentQuestionIndex];
-  if (selectedIdx === q.annotationId) {
-    alert('Correct!');
-    score++;
-    currentQuestionIndex++;
-    setTimeout(nextQuestion, 1000);
-  } else {
-    alert('Incorrect, try again.');
+    // Now listen *only* for the student’s click on a pin
+    sketchfabAPI.addEventListener('annotationSelect', handler);
   }
 }
