@@ -1,7 +1,6 @@
 // app.js
-
 document.addEventListener('DOMContentLoaded', () => {
-  // grab DOM elements
+  // DOM elements
   const iframe        = document.getElementById('api-frame');
   const startBtn      = document.getElementById('start-quiz-button');
   const quizContainer = document.getElementById('quiz-container');
@@ -32,18 +31,18 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   ];
 
-  // hide Start button until model is ready
+  // hide Start until model is ready
   startBtn.style.display = 'none';
   startBtn.addEventListener('click', startQuiz);
 
-  // initialize Sketchfab viewer
+  // init Sketchfab viewer
   const client = new Sketchfab(iframe);
   client.init(uid, {
     success(api) {
       sketchfabAPI = api;
       api.start();
       api.addEventListener('viewerready', () => {
-        // reveal the Start button when the model is fully loaded
+        // model loaded → show Start button
         startBtn.style.display = 'inline-block';
       });
     },
@@ -52,7 +51,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
-  // start the quiz
+  // kick off quiz
   function startQuiz() {
     startBtn.style.display = 'none';
     quizContainer.style.display = 'block';
@@ -61,9 +60,9 @@ document.addEventListener('DOMContentLoaded', () => {
     nextQuestion();
   }
 
-  // load the next question
+  // display next question
   function nextQuestion() {
-    // if we’re out of questions, end the quiz
+    // end‑of‑quiz
     if (currentQuestionIndex >= questions.length) {
       alert(`Quiz complete! Your score: ${score}`);
       quizContainer.style.display = 'none';
@@ -75,7 +74,7 @@ document.addEventListener('DOMContentLoaded', () => {
     optionsEl.innerHTML = '';
 
     if (q.type === 'multipleChoice') {
-      // render multiple-choice buttons
+      // render MC options
       q.options.forEach(opt => {
         const btn = document.createElement('button');
         btn.innerText = opt.answer;
@@ -84,25 +83,43 @@ document.addEventListener('DOMContentLoaded', () => {
       });
     }
     else if (q.type === 'annotation') {
-      // annotation question: pan/zoom as a hint
-      let skipProgrammatic = true;
+      // 1) listen for annotationFocus to know when gotoAnnotation finishes
+      const onFocus = focusedIdx => {
+        if (focusedIdx !== q.annotationId) return;
+        sketchfabAPI.removeEventListener('annotationFocus', onFocus);
 
-      // one-off handler for annotationSelect
-      const handler = selectedIdx => {
-        if (skipProgrammatic) {
-          // ignore the automatic event from gotoAnnotation()
-          skipProgrammatic = false;
-          return;
-        }
-        // remove listener after first real click
-        sketchfabAPI.removeEventListener('annotationSelect', handler);
+        // 2) now install select‑handler for the real click
+        const onSelect = selectedIdx => {
+          sketchfabAPI.removeEventListener('annotationSelect', onSelect);
+          if (selectedIdx === q.annotationId) {
+            alert('Correct!');
+            score++;
+            currentQuestionIndex++;
+            setTimeout(nextQuestion, 500);
+          } else {
+            alert('Incorrect, try again.');
+            // if you want them to retry, you could re‑attach:
+            // sketchfabAPI.addEventListener('annotationSelect', onSelect);
+          }
+        };
+        sketchfabAPI.addEventListener('annotationSelect', onSelect);
+      };
+      sketchfabAPI.addEventListener('annotationFocus', onFocus);
 
-        if (selectedIdx === q.annotationId) {
-          alert('Correct!');
-          score++;
-          currentQuestionIndex++;
-          setTimeout(nextQuestion, 500);
-        } else {
-          alert('Incorrect, try again.');
-          // if you want to allow repeated tries:
-          // skip
+      // 3) move camera for hint (fires annotationFocus when done)
+      sketchfabAPI.gotoAnnotation(q.annotationId);
+    }
+  }
+
+  // handle multiple‑choice answers
+  function handleMC(isCorrect) {
+    if (isCorrect) {
+      alert('Correct!');
+      score++;
+      currentQuestionIndex++;
+      setTimeout(nextQuestion, 500);
+    } else {
+      alert('Incorrect, try again.');
+    }
+  }
+});
