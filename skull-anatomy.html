@@ -4,53 +4,49 @@
   <meta charset="UTF-8">
   <title>Skull Anatomy Explorer</title>
 
-  <!-- Sketchfab API -->
-  <script src="https://static.sketchfab.com/api/sketchfab-viewer-1.12.1.js"></script>
-  <!-- Your quiz logic -->
+  <!-- 1) Make sure you load the API first -->
+  <script
+    src="https://static.sketchfab.com/api/sketchfab-viewer-1.12.1.js"
+    defer
+  ></script>
+
+  <!-- 2) Then your app.js -->
   <script src="app.js" defer></script>
 
   <style>
-    body { font-family: Arial, sans-serif; text-align: center; margin: 0; background-color: #f0f0f0; }
-    #header { padding: 20px; background: white; box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
-    #api-frame { width: 80%; height: 500px; border: none; margin-top: 20px; }
+    body { font-family: Arial; text-align: center; background: #f0f0f0; }
+    #header { padding: 1rem; background: #fff; box-shadow: 0 2px 6px rgba(0,0,0,0.1); }
+    #api-frame { width: 80%; height: 500px; border: none; margin: 1rem auto; }
 
-    /* Hide until JS shows it */
-    #start-quiz-button {
-      display: none;
-      background-color: #007bff;
-      color: white;
-      padding: 10px;
-      border: none;
-      cursor: pointer;
-      border-radius: 5px;
-      margin-top: 20px;
-    }
-    #start-quiz-button:hover { background-color: #0056b3; }
-
-    /* Quiz UI hidden until start */
-    #quiz-container { display: none; margin-top: 20px; }
-    #next-button { display: none; /* if you’re still using it */ }
+    /* quiz UI */
+    #start-quiz-button { display: none; margin-bottom: 1rem; }
+    #quiz-container { display: none; margin-top: 1rem; }
+    #options button { margin: 0.3rem; }
   </style>
 </head>
 <body>
+
   <div id="header">
     <h1>Explore the Skull Anatomy</h1>
-    <a href="index.html">Back to Quiz Selection</a>
+    <a href="index.html">← Back to Hub</a>
   </div>
 
-  <iframe id="api-frame"
-          src="https://sketchfab.com/models/fd3ccceafd5947acaacb468be88d1a9c/embed"
-          allow="autoplay; fullscreen; xr-spatial-tracking; gyroscope; accelerometer"
-          allowfullscreen>
-  </iframe>
+  <!-- 3) The Sketchfab iframe -->
+  <iframe
+    id="api-frame"
+    src="https://sketchfab.com/models/fd3ccceafd5947acaacb468be88d1a9c/embed"
+    allow="autoplay; fullscreen; xr-spatial-tracking"
+    allowfullscreen
+  ></iframe>
 
-  <!-- No onclick here -->
+  <!-- 4) Start button MUST be in the HTML -->
   <button id="start-quiz-button">Start Quiz</button>
 
+  <!-- 5) Hidden quiz container -->
   <div id="quiz-container">
     <p id="question"></p>
     <div id="options"></div>
-    <button id="next-button">Next Question</button>
   </div>
+
 </body>
 </html>
