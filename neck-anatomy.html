@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Neck Anatomy Explorer</title>
+
+  <!-- 1) Make sure you load the API first -->
+  <script
+    src="https://static.sketchfab.com/api/sketchfab-viewer-1.12.1.js"
+    defer
+  ></script>
+
+  <!-- 2) Then your app.js -->
+  <script src="app.js" defer></script>
+
+  <style>
+    body { font-family: Arial; text-align: center; background: #f0f0f0; }
+    #header { padding: 1rem; background: #fff; box-shadow: 0 2px 6px rgba(0,0,0,0.1); }
+    #api-frame { width: 80%; height: 500px; border: none; margin: 1rem auto; }
+
+    /* quiz UI */
+    #start-quiz-button { display: none; margin-bottom: 1rem; }
+    #quiz-container { display: none; margin-top: 1rem; }
+    #options button { margin: 0.3rem; }
+  </style>
+</head>
+<body>
+
+  <div id="header">
+    <h1>Explore the Skull Anatomy</h1>
+    <a href="index.html">← Back to Hub</a>
+  </div>
+
+  <!-- 3) The Sketchfab iframe -->
+  <iframe
+    id="api-frame"
+    src="https://sketchfab.com/models/133251f3fec3402bb79c9a635df4675e/embed"
+    allow="autoplay; fullscreen; xr-spatial-tracking"
+    allowfullscreen
+  ></iframe>
+
+  <!-- 4) Start button MUST be in the HTML -->
+  <button id="start-quiz-button">Start Quiz</button>
+
+  <!-- 5) Hidden quiz container -->
+  <div id="quiz-container">
+    <p id="question"></p>
+    <div id="options"></div>
+  </div>
+
+</body>
+</html>
