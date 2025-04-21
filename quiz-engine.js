@@ -77,14 +77,15 @@ function nextQuestion() {
     });
   } else if (q.type === 'annotation') {
     // Prompt user to click the correct annotation
-    optsDiv.innerHTML = `<p>Click on annotation #${q.annotationId}.</p>`;
-    api.gotoAnnotation(q.annotationId);
+   // optsDiv.innerHTML = `<p>Click on annotation #${q.annotationId}.</p>`;
+    //api.gotoAnnotation(q.annotationId);
     
- } else {console.log("dentro");}
+ } 
 }
 
 // Handle annotation-based answers
 function handleAnnotation(selection) {
+  if (selection==-1) return;
   const q = questions[currentQuestionIndex];
   if (q.type !== 'annotation') return;
 
