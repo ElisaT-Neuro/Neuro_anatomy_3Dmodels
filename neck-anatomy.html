@@ -1,9 +1,9 @@
-<!-- skull-base.html -->
+<!-- neck-anatomy.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Skull Base Anatomy Explorer</title>
+  <title>Neck Anatomy Explorer</title>
   <script src="https://static.sketchfab.com/api/sketchfab-viewer-1.12.1.js" defer></script>
   <style>
     body { font-family: Arial; text-align: center; background: #f0f0f0; }
@@ -16,36 +16,34 @@
 </head>
 <body>
   <div id="header">
-    <h1>Explore the Skull Base Anatomy</h1>
+    <h1>Explore the Neck Anatomy</h1>
     <a href="index.html">← Back to Hub</a>
   </div>
 
-  <!-- Replace YOUR_SKULL_BASE_MODEL_UID with the actual UID -->
   <iframe
     id="api-frame"
-    src="https://sketchfab.com/models/YOUR_SKULL_BASE_MODEL_UID/embed"
+    src="https://sketchfab.com/models/133251f3fec3402bb79c9a635df4675e/embed"
     allow="autoplay; fullscreen; xr-spatial-tracking"
     allowfullscreen>
   </iframe>
 
   <script>
-    // TODO: swap in your actual Skull‑Base UID and build out these questions
-    window.modelUID = 'YOUR_SKULL_BASE_MODEL_UID';
+    window.modelUID = '133251f3fec3402bb79c9a635df4675e';
     window.questions = [
       {
         type: "multipleChoice",
-        question: "Which bone houses the foramen magnum?",
+        question: "Which vertebra is the axis (C2)?",
         options: [
-          { answer: "Occipital Bone", correct: true },
-          { answer: "Sphenoid Bone", correct: false }
+          { answer: "Second cervical vertebra", correct: true },
+          { answer: "First cervical vertebra", correct: false }
         ]
       },
       {
         type: "annotation",
-        question: "Click on the annotation corresponding to the Jugular Foramen.",
-        annotationId: 2
+        question: "Click on the annotation corresponding to the Hyoid bone.",
+        annotationId: 5
       }
-      // …add more skull‑base questions here…
+      // …add more neck questions here…
     ];
   </script>
 
@@ -58,3 +56,4 @@
   </div>
 </body>
 </html>
+
