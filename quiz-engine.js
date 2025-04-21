@@ -79,7 +79,8 @@ function nextQuestion() {
     // Prompt user to click the correct annotation
     optsDiv.innerHTML = `<p>Click on annotation #${q.annotationId}.</p>`;
     api.gotoAnnotation(q.annotationId);
-  }
+    
+ } else {console.log("dentro");}
 }
 
 // Handle annotation-based answers
