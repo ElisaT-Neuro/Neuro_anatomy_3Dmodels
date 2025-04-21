@@ -4,21 +4,16 @@
   <meta charset="UTF-8">
   <title>Neck Anatomy Explorer</title>
 
-  <!-- 1) Make sure you load the API first -->
+  <!-- 1) Load Sketchfab API first -->
   <script
     src="https://static.sketchfab.com/api/sketchfab-viewer-1.12.1.js"
     defer
   ></script>
 
-  <!-- 2) Then your app.js -->
-  <script src="app.js" defer></script>
-
   <style>
     body { font-family: Arial; text-align: center; background: #f0f0f0; }
     #header { padding: 1rem; background: #fff; box-shadow: 0 2px 6px rgba(0,0,0,0.1); }
     #api-frame { width: 80%; height: 500px; border: none; margin: 1rem auto; }
-
-    /* quiz UI */
     #start-quiz-button { display: none; margin-bottom: 1rem; }
     #quiz-container { display: none; margin-top: 1rem; }
     #options button { margin: 0.3rem; }
@@ -31,7 +26,7 @@
     <a href="index.html">← Back to Hub</a>
   </div>
 
-  <!-- 3) The Sketchfab iframe -->
+  <!-- 2) The Sketchfab iframe (no change) -->
   <iframe
     id="api-frame"
     src="https://sketchfab.com/models/133251f3fec3402bb79c9a635df4675e/embed"
@@ -39,10 +34,33 @@
     allowfullscreen
   ></iframe>
 
-  <!-- 4) Start button MUST be in the HTML -->
-  <button id="start-quiz-button">Start Quiz</button>
+  <!-- 3) Config for this page’s quiz -->
+  <script>
+    // Tell the engine which model and which questions to load
+    window.modelUID = '133251f3fec3402bb79c9a635df4675e';
+    window.questions = [
+      {
+        type: "multipleChoice",
+        question: "Which vertebra is the axis (C2)?",
+        options: [
+          { answer: "Second cervical vertebra", correct: true },
+          { answer: "First cervical vertebra", correct: false }
+        ]
+      },
+      {
+        type: "annotation",
+        question: "Click on the annotation corresponding to the Hyoid bone.",
+        annotationId: 5
+      }
+      // …add more neck questions here…
+    ];
+  </script>
 
-  <!-- 5) Hidden quiz container -->
+  <!-- 4) Shared quiz engine -->
+  <script src="quiz-engine.js" defer></script>
+
+  <!-- 5) Quiz UI elements -->
+  <button id="start-quiz-button">Start Quiz</button>
   <div id="quiz-container">
     <p id="question"></p>
     <div id="options"></div>
