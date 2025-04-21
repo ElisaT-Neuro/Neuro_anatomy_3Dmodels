@@ -1,52 +1,101 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>Neck Anatomy Explorer</title>
+// quiz-engine.js
 
-  <!-- 1) Make sure you load the API first -->
-  <script
-    src="https://static.sketchfab.com/api/sketchfab-viewer-1.12.1.js"
-    defer
-  ></script>
+// Grab the Sketchfab iframe and initialize the client
+const iframe = document.getElementById('api-frame');
+const client = new Sketchfab(iframe);
 
-  <!-- 2) Then your app.js -->
-  <script src="app.js" defer></script>
+// Read model UID and questions array from page-local config
+const uid = window.modelUID;
+const questions = window.questions;
 
-  <style>
-    body { font-family: Arial; text-align: center; background: #f0f0f0; }
-    #header { padding: 1rem; background: #fff; box-shadow: 0 2px 6px rgba(0,0,0,0.1); }
-    #api-frame { width: 80%; height: 500px; border: none; margin: 1rem auto; }
+let api;
+let currentQuestionIndex = 0;
+let score = 0;
+let quizStarted = false;
 
-    /* quiz UI */
-    #start-quiz-button { display: none; margin-bottom: 1rem; }
-    #quiz-container { display: none; margin-top: 1rem; }
-    #options button { margin: 0.3rem; }
-  </style>
-</head>
-<body>
+// Initialize the Sketchfab viewer with the dynamic UID
+client.init(uid, {
+  success: function(sdk) {
+    api = sdk;
+    sdk.start();
 
-  <div id="header">
-    <h1>Explore the Neck Anatomy</h1>
-    <a href="index.html">← Back to Hub</a>
-  </div>
+    // Once the viewer is ready, show the Start Quiz button
+    sdk.addEventListener('viewerready', () => {
+      document.getElementById('start-quiz-button').style.display = 'block';
+    });
 
-  <!-- 3) The Sketchfab iframe -->
-  <iframe
-    id="api-frame"
-    src="https://sketchfab.com/models/133251f3fec3402bb79c9a635df4675e/embed"
-    allow="autoplay; fullscreen; xr-spatial-tracking"
-    allowfullscreen
-  ></iframe>
+    // Listen for annotation clicks during annotation questions
+    sdk.addEventListener('annotationSelect', idx => {
+      if (quizStarted) handleAnnotation(idx);
+    });
+  },
+  error: function() {
+    console.error('Sketchfab initialization failed');
+  }
+});
 
-  <!-- 4) Start button MUST be in the HTML -->
-  <button id="start-quiz-button">Start Quiz</button>
+// Start the quiz
+function startQuiz() {
+  quizStarted = true;
+  currentQuestionIndex = 0;
+  score = 0;
 
-  <!-- 5) Hidden quiz container -->
-  <div id="quiz-container">
-    <p id="question"></p>
-    <div id="options"></div>
-  </div>
+  document.getElementById('start-quiz-button').style.display = 'none';
+  document.getElementById('quiz-container').style.display = 'block';
+  nextQuestion();
+}
 
-</body>
-</html>
+// Load and render the next question
+function nextQuestion() {
+  if (currentQuestionIndex >= questions.length) {
+    alert(`Quiz complete! Your score: ${score}`);
+    document.getElementById('quiz-container').style.display = 'none';
+    return;
+  }
+
+  const q = questions[currentQuestionIndex];
+  document.getElementById('question').innerText = q.question;
+  const optsDiv = document.getElementById('options');
+  optsDiv.innerHTML = '';
+
+  if (q.type === 'multipleChoice') {
+    // Render multiple-choice buttons
+    q.options.forEach(opt => {
+      const btn = document.createElement('button');
+      btn.innerText = opt.answer;
+      btn.addEventListener('click', () => {
+        if (opt.correct) {
+          score++;
+          alert('Correct!');
+          currentQuestionIndex++;
+          setTimeout(nextQuestion, 500);
+        } else {
+          alert('Incorrect, try again.');
+        }
+      });
+      optsDiv.appendChild(btn);
+    });
+  } else if (q.type === 'annotation') {
+    // Prompt user to click the correct annotation
+    optsDiv.innerHTML = `<p>Click on annotation #${q.annotationId}.</p>`;
+    api.gotoAnnotation(q.annotationId);
+  }
+}
+
+// Handle annotation-based answers
+function handleAnnotation(selection) {
+  const q = questions[currentQuestionIndex];
+  if (q.type !== 'annotation') return;
+
+  if (selection === q.annotationId) {
+    score++;
+    alert('Correct!');
+    currentQuestionIndex++;
+    setTimeout(nextQuestion, 500);
+  } else {
+    alert('Incorrect, try again.');
+  }
+}
+
+// Wire up the Start Quiz button (in case HTML doesn’t use inline onclick)
+document.getElementById('start-quiz-button').addEventListener('click', startQuiz);
