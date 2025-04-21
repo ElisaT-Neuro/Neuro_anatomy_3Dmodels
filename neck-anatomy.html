@@ -1,15 +1,10 @@
+<!-- skull-base.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Neck Anatomy Explorer</title>
-
-  <!-- 1) Load Sketchfab API first -->
-  <script
-    src="https://static.sketchfab.com/api/sketchfab-viewer-1.12.1.js"
-    defer
-  ></script>
-
+  <title>Skull Base Anatomy Explorer</title>
+  <script src="https://static.sketchfab.com/api/sketchfab-viewer-1.12.1.js" defer></script>
   <style>
     body { font-family: Arial; text-align: center; background: #f0f0f0; }
     #header { padding: 1rem; background: #fff; box-shadow: 0 2px 6px rgba(0,0,0,0.1); }
@@ -20,51 +15,46 @@
   </style>
 </head>
 <body>
-
   <div id="header">
-    <h1>Explore the Neck Anatomy</h1>
+    <h1>Explore the Skull Base Anatomy</h1>
     <a href="index.html">← Back to Hub</a>
   </div>
 
-  <!-- 2) The Sketchfab iframe (no change) -->
+  <!-- Replace YOUR_SKULL_BASE_MODEL_UID with the actual UID -->
   <iframe
     id="api-frame"
-    src="https://sketchfab.com/models/133251f3fec3402bb79c9a635df4675e/embed"
+    src="https://sketchfab.com/models/YOUR_SKULL_BASE_MODEL_UID/embed"
     allow="autoplay; fullscreen; xr-spatial-tracking"
-    allowfullscreen
-  ></iframe>
+    allowfullscreen>
+  </iframe>
 
-  <!-- 3) Config for this page’s quiz -->
   <script>
-    // Tell the engine which model and which questions to load
-    window.modelUID = '133251f3fec3402bb79c9a635df4675e';
+    // TODO: swap in your actual Skull‑Base UID and build out these questions
+    window.modelUID = 'YOUR_SKULL_BASE_MODEL_UID';
     window.questions = [
       {
         type: "multipleChoice",
-        question: "Which vertebra is the axis (C2)?",
+        question: "Which bone houses the foramen magnum?",
         options: [
-          { answer: "Second cervical vertebra", correct: true },
-          { answer: "First cervical vertebra", correct: false }
+          { answer: "Occipital Bone", correct: true },
+          { answer: "Sphenoid Bone", correct: false }
         ]
       },
       {
         type: "annotation",
-        question: "Click on the annotation corresponding to the Hyoid bone.",
-        annotationId: 5
+        question: "Click on the annotation corresponding to the Jugular Foramen.",
+        annotationId: 2
       }
-      // …add more neck questions here…
+      // …add more skull‑base questions here…
     ];
   </script>
 
-  <!-- 4) Shared quiz engine -->
   <script src="quiz-engine.js" defer></script>
 
-  <!-- 5) Quiz UI elements -->
   <button id="start-quiz-button">Start Quiz</button>
   <div id="quiz-container">
     <p id="question"></p>
     <div id="options"></div>
   </div>
-
 </body>
 </html>
