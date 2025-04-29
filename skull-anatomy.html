@@ -10,7 +10,11 @@
     body { font-family: Arial; text-align: center; background: #f0f0f0; }
     #header { padding: 1rem; background: #fff; box-shadow: 0 2px 6px rgba(0,0,0,0.1); }
     #api-frame { width: 80%; height: 500px; border: none; margin: 1rem auto; }
-    #start-quiz-button { display: none; margin-bottom: 1rem; }
+    #start-quiz-button {display: none; background-color: #007bff;color: white; padding: 15px 30px; font-size: 20px;
+     width: 250px; border: none;
+    cursor: pointer;
+    border-radius: 8px;
+    margin: 20px auto 1rem;}
     #quiz-container { display: none; margin-top: 1rem; }
     #options button { margin: 0.3rem; }
   </style>
@@ -33,7 +37,7 @@
   <script>
     window.modelUID = 'fd3ccceafd5947acaacb468be88d1a9c';
     window.questions = [
-      {
+      { //question1
         type: "multipleChoice",
         question: "Which bone forms the forehead?",
         options: [
@@ -41,12 +45,72 @@
           { answer: "Temporal Bone", correct: false }
         ]
       },
-      {
+      {//question2
         type: "annotation",
         question: "Click on the annotation corresponding to the Optic Canal.",
         annotationId: 2 // always begins from 0
-      }
-      // …add more skull questions here…
+      },
+      {
+  type: "multipleChoice", //question 3
+  question: "Which skull bone contains the foramen ovale?",
+  options: [
+    { answer: "Sphenoid Bone", correct: true },
+    { answer: "Temporal Bone", correct: false },
+    { answer: "Occipital Bone", correct: false },
+    { answer: "Frontal Bone", correct: false }
+  ]
+},
+{
+  type: "annotation", //question 4
+  question: "Click on the annotation corresponding to the External Acoustic Meatus.",
+  annotationId: 7
+},
+{
+  type: "multipleChoice", //question 5
+  question: "Through which foramen does the internal carotid artery enter the cranial cavity?",
+  options: [
+    { answer: "Carotid canal", correct: true },
+    { answer: "Jugular foramen", correct: false },
+    { answer: "Foramen magnum", correct: false },
+    { answer: "Foramen spinosum", correct: false }
+  ]
+},
+{
+  type: "annotation", //question 6
+  question: "Click on the annotation corresponding to the Foramen Magnum.",
+  annotationId: 3
+},
+{
+  type: "multipleChoice",  //question 7
+  question: "The temporal lobe of the brain primarily rests in which cranial fossa?",
+  options: [
+    { answer: "Middle cranial fossa", correct: true },
+    { answer: "Anterior cranial fossa", correct: false },
+    { answer: "Posterior cranial fossa", correct: false },
+    { answer: "Infratemporal fossa", correct: false }
+  ]
+},
+{
+  type: "multipleChoice", //question 8
+  question: "Which two bones form the inferior orbital fissure?",
+  options: [
+    { answer: "Maxilla and sphenoid bone", correct: true },
+    { answer: "Frontal and sphenoid bone", correct: false },
+    { answer: "Zygomatic and frontal bone", correct: false },
+    { answer: "Maxilla and ethmoid bone", correct: false }
+  ]
+}, 
+{
+  type: "multipleChoice", //question 9
+  question: "Which cranial nerve branch passes through the inferior orbital fissure?",
+  options: [
+    { answer: "Maxillary branch (V2) of the trigeminal nerve", correct: true },
+    { answer: "Mandibular branch (V3) of the trigeminal nerve", correct: false },
+    { answer: "Ophthalmic branch (V1) of the trigeminal nerve", correct: false },
+    { answer: "Facial nerve (VII)", correct: false }
+  ]
+}
+
     ];
   </script>
 
